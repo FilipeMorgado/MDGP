@@ -12,7 +12,7 @@
 // Devolve o custo
 int calcula_fit(int a[], int** mat, int m, int g)
 {
-    int* sol = NULL;
+    int* sol = 0;
     int total = 0;
     int i, idx = 0, subc = 0;
 
@@ -44,8 +44,6 @@ int calcula_div(int sol[], int** mat, int m, int start, int count)
     for (i = start; i < (start + count); i++)
         for (j = i + 1; j < (start + count); j++)
             div += obter_distancia(mat, m, sol[i], sol[j]);
-
-    //printf("\n\n\nDISTANCIA E: %d", div);
 
     return div;
 }

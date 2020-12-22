@@ -14,8 +14,9 @@
 int** init_dados(char* nome, int* m, int* g)
 {
     FILE* f;
-    int** dist;
-    int i, j, idx, lines;
+    int** dist = NULL;
+    int i, j , idx ,lines;
+    char lixoFicheiro[100];
 
     f = fopen(nome, "r");
     if (!f)
@@ -30,6 +31,7 @@ int** init_dados(char* nome, int* m, int* g)
     // Numero de sub-conjuntos
     fscanf(f, " %d", g);
 
+    fgets(lixoFicheiro,100,f);
     // Linhas
     dist = (int**)malloc(sizeof(int*) * (*m - 1));
     if (!dist)
@@ -42,6 +44,7 @@ int** init_dados(char* nome, int* m, int* g)
     {
         // Colunas de cada linha
         dist[i] = (int*)calloc(*m, sizeof(int));
+       //dist[i] = (int**)malloc(sizeof(*m));
         if (!dist[i])
         {
             printf("Erro na alocacao de memoria para linha %d\n", i);

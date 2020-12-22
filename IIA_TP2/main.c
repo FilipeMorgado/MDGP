@@ -8,13 +8,13 @@
 #include "utils.h"
 
 
-#define DEFAULT_RUNS 10
+#define DEFAULT_RUNS 100
 
 
 enum TipoAlgoritmo
 {
 	algTrepaColinas,
-	algTrepaColinasProb
+    algTrepaColinasMelhorado
 };
 
 
@@ -93,8 +93,11 @@ int main(int argc, char* argv[])
                 // Trepa colinas simples
                 strcpy(nome_alg, "Trepa Colinas");
                 custo = trepa_colinas(sol, dist, m, g, num_iter);
-                printf("\n\n\n\n");
-                printf("CUSTOOOOOOOOOOOO: %d ", custo);
+                break;
+            case algTrepaColinasMelhorado:
+                // Trepa colinas melhorado
+                strcpy(nome_alg, "Trepa Colinas");
+                custo = trepa_colinasv2(sol, dist, m, g, num_iter);
                 break;
             default:
                 exit(0);
