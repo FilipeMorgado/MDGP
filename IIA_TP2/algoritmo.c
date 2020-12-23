@@ -6,6 +6,7 @@
 #include "funcao.h"
 #include "utils.h"
 
+#define PROB 0.001
 
 
 // Gera um vizinho
@@ -111,7 +112,7 @@ int trepa_colinasv2(int sol[], int** mat, int m, int g, int num_iter)
             custo = custo_viz2;
         }
         else {
-        if (rand_01() < 0.001) {
+        if (rand_01() < PROB) {
             copia(sol, nova_sol, m);
             custo = custo_viz;
         }
@@ -129,4 +130,277 @@ int trepa_colinasv2(int sol[], int** mat, int m, int g, int num_iter)
     free(nova_sol2);
 
     return custo;
+}
+
+/* EVOLUTIVO */
+
+
+
+// Seleccao por torneio de tamanho t_size
+// Argumentos: populacao actual, parametros, pais
+// A funcao preenche o vector pais de acordo com o resultados dos torneios
+void sized_tournament(pchrom pop, struct info d, pchrom parents)
+{
+    int i, j, max;
+
+    int* xvect = malloc(sizeof(int) * d.t_size);
+    if (!xvect) return;
+
+    for (i = 0; i < d.popsize; i++)
+    {
+        for (j = 0; j < d.t_size; j++)
+        {
+            //Deveria se já foi escolhido
+            xvect[j] = random_l_h(0, d.popsize - 1);
+        }
+
+        max = xvect[0];
+        for (j = 1; j < d.t_size; j++)
+        {
+            // Problema de maximizacao: só sai um pai
+            if ((pop + xvect[j])->fitness > (pop + max)->fitness)
+                max = xvect[j];
+        }
+
+        atribuicao(parents + i, *(pop + max), d);
+    }
+
+    free(xvect);
+}
+
+
+// Operadores geneticos
+// Argumentos: pais, estrutura com parametros, descendentes
+void genetic_operators(pchrom parents, struct info d, pchrom offspring, int** dist)
+{
+    recombination(parents, d, offspring, dist);
+    mutation(d, offspring);
+}
+
+
+// Chama a funcao cx_order que implementa a recombinacao por ordem (com probabilidade pr)
+// Argumentos: pais, estrutura com parametros, descendentes
+// A funcao preenche o vector descendentes com o resultado das operacoes de crossover
+void recombination(pchrom parents, struct info d, pchrom offspring, int** dist)
+{
+    int i;
+
+    for (i = 0; i < d.popsize; i += 2)
+    {
+        if (rand_01() < d.pr)
+        {
+            // Recombinar
+            cx_order((parents + i)->sol, (parents + i + 1)->sol, (offspring + i)->sol, (offspring + i + 1)->sol, d);
+
+        }
+        else
+        {
+            // Sem recombinacao
+            atribuicao(offspring + i, *(parents + i), d);
+            atribuicao(offspring + i + 1, *(parents + i + 1), d);
+        }
+
+        //(offspring+i)->fitness = calcula_fit((offspring+i)->sol, dist, d.m, d.g);
+        //printf("\nFitness Filho 1: %d",(offspring+i)->fitness);
+
+        //(offspring+i+1)->fitness = calcula_fit((offspring+i+1)->sol, dist, d.m, d.g);
+        //printf("\nFitness Filho 2: %d",(offspring+i+1)->fitness);
+
+        (offspring + i)->fitness = (offspring + i + 1)->fitness = 0;
+    }
+}
+
+
+// Chama as funcoes que implementam as operacoes de mutacao (de acordo com as respectivas probabilidades)
+// Argumentos: estrutura de parametros e descendentes
+// Na versao disponibilizada, apenas a mutacao swap esta implementada
+void mutation(struct info d, pchrom offspring)
+{
+    int i;
+
+    for (i = 0; i < d.popsize; i++)
+    {
+        if (rand_01() < d.pm_swap)
+            mutation_swap(d, (offspring + i)->sol);
+    }
+}
+
+
+// Mutacao swap
+// Argumentos: estrutura de parametros e solucao a alterar
+void mutation_swap(struct info d, int a[])
+{
+    int x, y, z;
+
+    x = random_l_h(0, d.m - 1);
+    do {
+        y = random_l_h(0, d.m - 1);
+    } while (x == y || a[x] == a[y]);
+
+    z = a[x];
+    a[x] = a[y];
+    a[y] = z;
+}
+
+
+
+// Recombinacao por ordem
+// Argumentos: pai1, pai2, descendente1, descendente2, estrutura com parametros
+void cx_order(int p1[], int p2[], int d1[], int d2[], struct info d)
+{
+    int i, aceites;
+    int* tab1, * tab2, * conj;
+    double prob = 0.5;
+    double r;
+
+    tab1 = (int*)calloc(d.m, sizeof(int));
+    if (!tab1)
+    {
+        printf("Erro na alocacao de memoria");
+        exit(1);
+    }
+
+    tab2 = (int*)calloc(d.m, sizeof(int));
+    if (!tab2)
+    {
+        printf("Erro na alocacao de memoria");
+        exit(1);
+    }
+
+    conj = (int*)calloc(d.g, sizeof(int));
+    if (!conj)
+    {
+        printf("Erro na alocacao de memoria");
+        exit(1);
+    }
+
+    //Teste
+    //escreve_vect(p1, d.m);
+    //escreve_vect(p2, d.m);
+
+    // Primeiro descendente
+    i = 0;
+    aceites = 0;
+    while (1)
+    {
+        // Verificar
+        if (aceites >= d.m)
+            break;
+
+        // Ultimo
+        if (i >= d.m)
+        {
+            i = 0;
+            continue;
+        }
+
+        r = rand_01();
+        if (r < prob)
+        {
+            // Verifica se ja ultrapassa do limite
+            if (conj[p1[i]] >= (d.m / d.g) || tab1[i] == 1)
+            {
+                if (conj[p2[i]] >= (d.m / d.g) || tab2[i] == 1)
+                {
+                    // Ultimo: Proteccao
+                    if (i == d.m - 1)
+                        i = 0;
+                    else
+                        i++;
+                    continue;
+                }
+                else
+                {
+                    d1[aceites] = p2[i];
+                    tab2[i] = 1;
+                }
+            }
+            else
+            {
+                d1[aceites] = p1[i];
+                tab1[i] = 1;
+            }
+        }
+        else
+        {
+            // Verifica se ja ultrapassa do limite
+            if (conj[p2[i]] >= (d.m / d.g) || tab2[i] == 1)
+            {
+                if (conj[p1[i]] >= (d.m / d.g) || tab1[i] == 1)
+                {
+                    // Ultimo: Proteccao
+                    if (i == d.m - 1)
+                        i = 0;
+                    else
+                        i++;
+                    continue;
+                }
+                else
+                {
+                    d1[aceites] = p1[i];
+                    tab1[i] = 1;
+                }
+            }
+            else
+            {
+                d1[aceites] = p2[i];
+                tab2[i] = 1;
+            }
+        }
+
+        conj[d1[aceites]]++;
+
+        //Teste
+        //printf("\nTabs");
+        //escreve_vect(tab1, d.m);
+        //escreve_vect(tab2, d.m);
+        //printf("\nMemory");
+        //escreve_vect(conj, d.g);
+        //fflush(0);
+
+        aceites++;
+        i++;
+    }
+
+    //Teste
+    //printf("\n\ndescendente1");
+    //escreve_vect(d1, d.m);
+    //escreve_sol(d1, d.m, d.g);
+
+    //Teste
+    //printf("\nTabs");
+    //escreve_vect(tab1, d.m);
+    //escreve_vect(tab2, d.m);
+    //fflush(0);
+
+    // Segundo descendente
+    i = 0;
+    aceites = 0;
+    while (i < d.m)
+    {
+        // Proteccao
+        if (aceites >= d.m)
+            break;
+
+        // Restantes para o descendente 2
+        if (tab1[i] == 0)
+        {
+            d2[aceites++] = p1[i];
+        }
+        if (tab2[i] == 0)
+        {
+            d2[aceites++] = p2[i];
+        }
+        i++;
+    }
+
+    //Teste
+    //printf("\n\ndescendente2");
+    //escreve_vect(d2, d.m);
+    //escreve_sol(d2, d.m, d.g);
+
+    // Liberta memória
+    free(conj);
+    free(tab1);
+    free(tab2);
 }

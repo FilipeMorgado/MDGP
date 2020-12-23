@@ -140,6 +140,111 @@ int obter_distancia(int** dist, int m, int a, int b)
 }
 
 
+
+/* EVOLUTIVO */
+
+
+// Criacao da populacao inicial. O vector e alocado dinamicamente
+// Argumento: Estrutura com parametros, Matriz de Distancias
+// Devolve o vector com a populacao
+pchrom init_pop(struct info d, int** dist)
+{
+    int i;
+
+    // Linhas
+    pchrom p = malloc(sizeof(chrom) * d.popsize);
+    if (!p)
+    {
+        printf("Erro na alocacao de memoria\n");
+        exit(1);
+    }
+
+    for (i = 0; i < d.popsize; i++)
+    {
+        // Colunas de cada linha
+        p[i].sol = (int*)calloc(d.m, sizeof(int));
+        if (!p[i].sol)
+        {
+            printf("Erro na alocacao de memoria para linha %d\n", i);
+            exit(1);
+        }
+
+        gera_sol_inicial(p[i].sol, d.m, d.g);
+
+        p[i].fitness = calcula_fit(p[i].sol, dist, d.m, d.g);
+    }
+
+    return p;
+}
+
+// Criacao dos pais. O vector e alocado dinamicamente
+// Argumento: Estrutura com parametros
+// Devolve o vector com para os pais
+pchrom init_parents(struct info d)
+{
+    int i;
+    pchrom parents = malloc(sizeof(chrom) * d.popsize);
+
+    if (!parents)
+    {
+        printf("Erro na alocacao de memoria\n");
+        exit(1);
+    }
+    for (i = 0; i < d.popsize; i++)
+    {
+        // Colunas de cada linha
+        parents[i].sol = (int*)calloc(d.m, sizeof(int));
+        if (!parents[i].sol)
+        {
+            printf("Erro na alocacao de memoria para linha %d\n", i);
+            exit(1);
+        }
+        // Inicializa
+        parents[i].fitness = 0;
+    }
+    return parents;
+}
+
+// Avaliar cada solucao da populacao.
+// Argumento: Populacao, Estrutura com parametros, Matriz de Distancias
+void evaluate(pchrom pop, struct info d, int** dist)
+{
+    int i;
+    for (i = 0; i < d.popsize; i++)
+        pop[i].fitness = calcula_fit(pop[i].sol, dist, d.m, d.g);
+}
+
+// Actualiza a melhor solucao encontrada
+// Argumentos: populacao actual, estrutura com parametros e melhor solucao encontrada ate a geracao imediatamente anterior
+// Devolve a melhor solucao encontrada ate a geracao actual
+void get_best(pchrom pop, struct info d, pchrom best)
+{
+    int i;
+    for (i = 0; i < d.popsize; i++)
+    {
+        if (best->fitness < pop[i].fitness)
+            atribuicao(best, pop[i], d);
+    }
+}
+
+// Igualar uma solucao de uma populacao
+void atribuicao(pchrom a, chrom b, struct info d)
+{
+    copia(a->sol, b.sol, d.m);
+    a->fitness = b.fitness;
+}
+
+int flip()
+{
+    if ((((float)rand()) / RAND_MAX) < 0.5)
+        return 0;
+
+    else
+        return 1;
+}
+
+
+/* Aleatoridade */
 void init_rand()
 {
 	srand((unsigned)time(NULL));
