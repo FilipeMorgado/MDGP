@@ -64,9 +64,7 @@ int trepa_colinas(int sol[], int** mat, int m, int g, int num_iter)
             custo = custo_viz;
         }
     }
-
     free(nova_sol);
-
     return custo;
 }
 
@@ -90,7 +88,6 @@ int trepa_colinasv2(int sol[], int** mat, int m, int g, int num_iter)
     // Avalia solucao inicial
     custo = calcula_fit(sol, mat, m, g);
 
-
     for (i = 0; i < num_iter; i++)
     {
         // Gera vizinho
@@ -111,20 +108,14 @@ int trepa_colinasv2(int sol[], int** mat, int m, int g, int num_iter)
             copia(sol, nova_sol2, m);
             custo = custo_viz2;
         }
-        else {
-        if (rand_01() < PROB) {
-            copia(sol, nova_sol, m);
-            custo = custo_viz;
-        }
     }       
-
         // Aceita vizinho se o custo aumentar (problema de maximizacao)
         /*if (custo_viz > custo)
         {
             copia(sol, nova_sol, m);
             custo = custo_viz;
         }*/
-    }
+    
 
     free(nova_sol);
     free(nova_sol2);
@@ -132,9 +123,46 @@ int trepa_colinasv2(int sol[], int** mat, int m, int g, int num_iter)
     return custo;
 }
 
+int tc_prob(int sol[], int** mat, int m, int g, int num_iter){
+    int* nova_sol, custo, custo_viz, i;
+
+
+    nova_sol = malloc(sizeof(int) * m);
+    if (nova_sol == NULL)
+    {
+        printf("Erro na alocacao de memoria");
+        exit(1);
+    }
+
+    // Avalia solucao inicial
+    custo = calcula_fit(sol, mat, m, g);
+
+    for (i = 0; i < num_iter; i++)
+    {
+        // Gera vizinho
+        gera_vizinho(sol, nova_sol, m);
+
+        // Avalia vizinho
+        custo_viz = calcula_fit(nova_sol, mat, m, g);
+
+        // Aceita vizinho se o custo aumentar (problema de maximizacao)
+        if (custo_viz > custo)
+        {
+            copia(sol, nova_sol, m);
+            custo = custo_viz;
+        }
+        else
+            if (rand_01() < PROB) {
+                copia(sol, nova_sol, m);
+                custo = custo_viz;
+            }
+    }
+    free(nova_sol);
+    return custo;
+
+}
+
 /* EVOLUTIVO */
-
-
 
 // Seleccao por torneio de tamanho t_size
 // Argumentos: populacao actual, parametros, pais
@@ -174,6 +202,7 @@ void sized_tournament(pchrom pop, struct info d, pchrom parents)
 void genetic_operators(pchrom parents, struct info d, pchrom offspring, int** dist)
 {
     recombination(parents, d, offspring, dist);
+    // Mutação binária
     mutation(d, offspring);
 }
 

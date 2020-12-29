@@ -15,6 +15,7 @@ enum TipoAlgoritmo
 {
 	algTrepaColinas,
     algTrepaColinasMelhorado,
+    algTrepaColinasProb,
     algEvolucionario
 };
 
@@ -63,7 +64,7 @@ int main(int argc, char* argv[])
 
 	init_rand();
 
-	algoritmo = algEvolucionario;
+	algoritmo = algTrepaColinas;
 	num_iter = 1000;
 
     /* Evolutivo */
@@ -87,6 +88,7 @@ int main(int argc, char* argv[])
     {
     case algTrepaColinasMelhorado:
     case algTrepaColinas:
+    case algTrepaColinasProb:
         /*case algTrepaColinasProb:*/
         sol = calloc(m, sizeof(int));
         best = calloc(m, sizeof(int));
@@ -113,6 +115,10 @@ int main(int argc, char* argv[])
                 // Trepa colinas melhorado + probabilistico
                 strcpy(nome_alg, "Trepa Colinas");
                 custo = trepa_colinasv2(sol, dist, m, g, num_iter);
+                break;
+            case  algTrepaColinasProb:
+                strcpy(nome_alg, "Trepa Colinas");
+                custo = tc_prob(sol, dist, m, g, num_iter);
                 break;
             default:
                 exit(0);

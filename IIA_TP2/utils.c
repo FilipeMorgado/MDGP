@@ -212,6 +212,8 @@ void evaluate(pchrom pop, struct info d, int** dist)
     int i;
     for (i = 0; i < d.popsize; i++)
         pop[i].fitness = calcula_fit(pop[i].sol, dist, d.m, d.g);
+        // penalizado
+        //pop[i].fitness = calcula_fit(pop[i].sol, dist, d.m, d.g);
 }
 
 // Actualiza a melhor solucao encontrada
