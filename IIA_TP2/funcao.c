@@ -24,7 +24,6 @@ int calcula_fit(int a[], int** mat, int m, int g)
                 sol[idx] = i;
                 idx++;
             }
-            
 
     // qualidade = diversidade(0) + diversidade(1) + ... + diversidade(g)
     for (i = 0; i < g; i++)
@@ -44,6 +43,5 @@ int calcula_div(int sol[], int** mat, int m, int start, int count)
     for (i = start; i < (start + count); i++)
         for (j = i + 1; j < (start + count); j++)
             div += obter_distancia(mat, m, sol[i], sol[j]);
-
     return div;
 }

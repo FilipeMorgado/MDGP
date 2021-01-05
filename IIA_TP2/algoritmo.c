@@ -146,7 +146,7 @@ int tc_prob(int sol[], int** mat, int m, int g, int num_iter){
         custo_viz = calcula_fit(nova_sol, mat, m, g);
 
         // Aceita vizinho se o custo aumentar (problema de maximizacao)
-        if (custo_viz > custo)
+        if (custo_viz >= custo)
         {
             copia(sol, nova_sol, m);
             custo = custo_viz;
@@ -220,7 +220,6 @@ void recombination(pchrom parents, struct info d, pchrom offspring, int** dist)
         {
             // Recombinar
             cx_order((parents + i)->sol, (parents + i + 1)->sol, (offspring + i)->sol, (offspring + i + 1)->sol, d);
-
         }
         else
         {
@@ -303,10 +302,6 @@ void cx_order(int p1[], int p2[], int d1[], int d2[], struct info d)
         exit(1);
     }
 
-    //Teste
-    //escreve_vect(p1, d.m);
-    //escreve_vect(p2, d.m);
-
     // Primeiro descendente
     i = 0;
     aceites = 0;
@@ -378,30 +373,9 @@ void cx_order(int p1[], int p2[], int d1[], int d2[], struct info d)
         }
 
         conj[d1[aceites]]++;
-
-        //Teste
-        //printf("\nTabs");
-        //escreve_vect(tab1, d.m);
-        //escreve_vect(tab2, d.m);
-        //printf("\nMemory");
-        //escreve_vect(conj, d.g);
-        //fflush(0);
-
         aceites++;
         i++;
     }
-
-    //Teste
-    //printf("\n\ndescendente1");
-    //escreve_vect(d1, d.m);
-    //escreve_sol(d1, d.m, d.g);
-
-    //Teste
-    //printf("\nTabs");
-    //escreve_vect(tab1, d.m);
-    //escreve_vect(tab2, d.m);
-    //fflush(0);
-
     // Segundo descendente
     i = 0;
     aceites = 0;
@@ -422,12 +396,6 @@ void cx_order(int p1[], int p2[], int d1[], int d2[], struct info d)
         }
         i++;
     }
-
-    //Teste
-    //printf("\n\ndescendente2");
-    //escreve_vect(d2, d.m);
-    //escreve_sol(d2, d.m, d.g);
-
     // Liberta memória
     free(conj);
     free(tab1);

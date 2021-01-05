@@ -8,7 +8,7 @@
 #include "utils.h"
 
 
-#define DEFAULT_RUNS 30
+#define DEFAULT_RUNS 50
 
 
 enum TipoAlgoritmo
@@ -38,190 +38,194 @@ int main(int argc, char* argv[])
     pchrom pop = NULL, parents = NULL;
 
 	// Lê os argumentos de entrada
-	if (argc == 3)
-	{
-		runs = atoi(argv[2]);
-		strcpy(nome_fich, argv[1]);
-	}
-	else
-		// Se o número de execuções do processo não for colocado nos argumentos de entrada, define-o com um valor por defeito
-		if (argc == 2)
-		{
-			runs = DEFAULT_RUNS;
-			strcpy(nome_fich, argv[1]);
-		}
-	// Se o nome do ficheiro de informações não for colocado nos argumentos de entrada, pede-o novamente
-		else
-		{
-			runs = DEFAULT_RUNS;
-			printf("Nome do Ficheiro: ");
-			gets(nome_fich);
-		}
-
-	// Se o número de execuções do processo for menor ou igual a 0, termina o programa
-	if (runs <= 0)
-		return 0;
-
-	init_rand();
-
-	algoritmo = algTrepaColinas;
-	num_iter = 1000;
-
-    /* Evolutivo */
-    parameters.numTabuDescidas = 5;
-    parameters.numGenerations = 2100;
-    parameters.popsize = 100;
-    parameters.pm_swap = 0.025;
-    parameters.pr = 0.25;
-    parameters.t_size = 3;
-
-	dist = init_dados(nome_fich, &m, &g);
-
-	parameters.m = m; //Nr Elementos
-	parameters.g = g; //Nr Sub-conjuntos
-
-	printf("Elementos: %d\n", m);
-	printf("Sub-conjuntos: %d\n", g);
-
-
-    switch (algoritmo)
-    {
-    case algTrepaColinasMelhorado:
-    case algTrepaColinas:
-    case algTrepaColinasProb:
-        /*case algTrepaColinasProb:*/
-        sol = calloc(m, sizeof(int));
-        best = calloc(m, sizeof(int));
-
-        if (sol == NULL || best == NULL)
+    while (1) {
+        mbf = 0.0;
+        if (argc == 3)
         {
-            printf("Erro na alocacao de memoria");
-            exit(1);
+            runs = atoi(argv[2]);
+            strcpy(nome_fich, argv[1]);
         }
-
-        for (k = 0; k < runs; k++)
-        {
-            // Gerar solucao inicial
-            gera_sol_inicial(sol, m, g);
-
-            switch (algoritmo)
+        else
+            // Se o número de execuções do processo não for colocado nos argumentos de entrada, define-o com um valor por defeito
+            if (argc == 2)
             {
-            case algTrepaColinas:
-                // Trepa colinas simples
-                strcpy(nome_alg, "Trepa Colinas");
-                custo = trepa_colinas(sol, dist, m, g, num_iter);
-                break;
-            case algTrepaColinasMelhorado:
-                // Trepa colinas melhorado + probabilistico
-                strcpy(nome_alg, "Trepa Colinas");
-                custo = trepa_colinasv2(sol, dist, m, g, num_iter);
-                break;
-            case  algTrepaColinasProb:
-                strcpy(nome_alg, "Trepa Colinas");
-                custo = tc_prob(sol, dist, m, g, num_iter);
-                break;
-            default:
-                exit(0);
+                runs = DEFAULT_RUNS;
+                strcpy(nome_fich, argv[1]);
             }
-            // Escreve resultados da repeticao k
-            printf("\nRepeticao %d:", k);
-            escreve_sol(sol, m, g);
-            printf("Custo final: %2d\n", custo);
-
-            mbf += custo;
-            if (k == 0 || custo_best < custo)
+        // Se o nome do ficheiro de informações não for colocado nos argumentos de entrada, pede-o novamente
+            else
             {
-                custo_best = custo;
-                copia(best, sol, m);
+                runs = DEFAULT_RUNS;
+                printf("Nome do Ficheiro: ");
+                gets(nome_fich);
             }
-        }
 
-        // Escreve resultados globais
-        printf("\n\nMBF: %f\n", mbf / k);
-        printf("\nMelhor solucao encontrada");
-        escreve_sol(best, m, g);
-        printf("Custo final: %2d\n", custo_best);
-        // Libertar memoria
-        free(sol);
-        free(best);
-        break;
-        
-    case algEvolucionario:
-        strcpy(nome_alg, "Evolucionario");
+        // Se o número de execuções do processo for menor ou igual a 0, termina o programa
+        if (runs <= 0)
+            return 0;
 
-        best_run.sol = calloc(m, sizeof(int));
-        best_ever.sol = calloc(m, sizeof(int));
+        init_rand();
 
-        for (k = 0; k < runs; k++)
+        algoritmo = algTrepaColinasProb;
+        num_iter = 100;
+
+        /* Evolutivo */
+        parameters.numTabuDescidas = 5;
+        parameters.numGenerations = 2100;
+        parameters.popsize = 100;
+        parameters.pm_swap = 0.025;
+        parameters.pr = 0.25;
+        parameters.t_size = 3;
+
+        dist = init_dados(nome_fich, &m, &g);
+
+        parameters.m = m; //Nr Elementos
+        parameters.g = g; //Nr Sub-conjuntos
+
+        printf("Elementos: %d\n", m);
+        printf("Sub-conjuntos: %d\n", g);
+
+
+        switch (algoritmo)
         {
+        case algTrepaColinasMelhorado:
+        case algTrepaColinas:
+        case algTrepaColinasProb:
+            /*case algTrepaColinasProb:*/
+            sol = calloc(m, sizeof(int));
+            best = calloc(m, sizeof(int));
 
-            pop = init_pop(parameters, dist);
-
-            // ALTERAR PARA COMO A AULA FOI FEITO
-            atribuicao(&best_run, pop[0], parameters);
-
-            // Inicializar a melhor solucao encontrada
-            get_best(pop, parameters, &best_run);
-
-            // Reservar espaco para os pais
-            parents = init_parents(parameters);
-            gen_actual = 1;
-
-            // Main evolutionary loop
-            while (gen_actual <= parameters.numGenerations)
+            if (sol == NULL || best == NULL)
             {
-                // Torneio binario para encontrar os progenitores (ficam armazenados no vector parents)
-                sized_tournament(pop, parameters, parents);
+                printf("Erro na alocacao de memoria");
+                exit(1);
+            }
 
-                // Aplicar operadores geneticos aos pais (os descendentes ficam armazenados no vector pop)
-                genetic_operators(parents, parameters, pop, dist);
+            for (k = 0; k < runs; k++)
+            {
+                // Gerar solucao inicial
+                gera_sol_inicial(sol, m, g);
 
-                // Reavaliar a qualidade da populacao
+                switch (algoritmo)
+                {
+                case algTrepaColinas:
+                    // Trepa colinas simples
+                    strcpy(nome_alg, "Trepa Colinas");
+                    custo = trepa_colinas(sol, dist, m, g, num_iter);
+                    break;
+                case algTrepaColinasMelhorado:
+                    // Trepa colinas melhorado + probabilistico
+                    strcpy(nome_alg, "Trepa Colinas");
+                    custo = trepa_colinasv2(sol, dist, m, g, num_iter);
+                    break;
+                case  algTrepaColinasProb:
+                    strcpy(nome_alg, "Trepa Colinas");
+                    custo = tc_prob(sol, dist, m, g, num_iter);
+                    break;
+                default:
+                    exit(0);
+                }
+                // Escreve resultados da repeticao k
+                printf("\nRepeticao %d:", k);
+                escreve_sol(sol, m, g);
+                printf("Custo final: %2d\n", custo);
+
+                mbf += custo;
+                if (k == 0 || custo_best < custo)
+                {
+                    custo_best = custo;
+                    copia(best, sol, m);
+                }
+            }
+            // Escreve resultados globais
+            printf("\n\nMBF: %f\n", mbf / k);
+            printf("\nMelhor solucao encontrada");
+            escreve_sol(best, m, g);
+            printf("Custo final: %2d\n", custo_best);
+            // Libertar memoria
+            free(sol);
+            free(best);
+            break;
+
+        case algEvolucionario:
+            strcpy(nome_alg, "Evolucionario");
+
+            best_run.sol = calloc(m, sizeof(int));
+            best_ever.sol = calloc(m, sizeof(int));
+
+            for (k = 0; k < runs; k++)
+            {
+
+                pop = init_pop(parameters, dist);
+
+                // AVALIAR a qualidade da populacao
                 evaluate(pop, parameters, dist);
 
-                // Actualizar a melhor solucao encontrada
+                // ALTERAR PARA COMO A AULA FOI FEITO
+                atribuicao(&best_run, pop[0], parameters);
+
+                // Inicializar a melhor solucao encontrada
                 get_best(pop, parameters, &best_run);
 
-                gen_actual++;
+                // Reservar espaco para os pais
+                parents = init_parents(parameters);
+                gen_actual = 1;
+
+                // Main evolutionary loop
+                while (gen_actual <= parameters.numGenerations)
+                {
+                    // Torneio binario para encontrar os progenitores (ficam armazenados no vector parents)
+                    sized_tournament(pop, parameters, parents);
+
+                    // Aplicar operadores geneticos aos pais (os descendentes ficam armazenados no vector pop)
+                    genetic_operators(parents, parameters, pop, dist);
+
+                    // Reavaliar a qualidade da populacao
+                    evaluate(pop, parameters, dist);
+
+                    // Actualizar a melhor solucao encontrada
+                    get_best(pop, parameters, &best_run);
+
+                    gen_actual++;
+                }
+
+                // Escreve resultados da repeticao que terminou
+                printf("\nRepeticao %d:", k);
+                escreve_sol(best_run.sol, m, g);
+                printf("Custo: %2d\n", best_run.fitness);
+
+                mbf += best_run.fitness;
+                if (k == 0 || best_ever.fitness < best_run.fitness)
+                {
+                    atribuicao(&best_ever, best_run, parameters);
+                }
+
+                // Libertar memoria
+                // Populacao
+                for (i = 0; i < parameters.popsize; i++)
+                    free(pop[i].sol);
+                free(pop);
+
+                // Pais
+                for (i = 0; i < parameters.popsize; i++)
+                    free(parents[i].sol);
+                free(parents);
             }
 
-            // Escreve resultados da repeticao que terminou
-            printf("\nRepeticao %d:", k);
-            escreve_sol(best_run.sol, m, g);
-            printf("Custo: %2d\n", best_run.fitness);
+            // Escreve resultados globais
+            printf("\n\nMBF: %f\n", mbf / k);
+            printf("\nMelhor solucao encontrada");
+            escreve_sol(best_ever.sol, m, g);
+            printf("Custo final: %2d\n", best_ever.fitness);
 
-            mbf += best_run.fitness;
-            if (k == 0 || best_ever.fitness < best_run.fitness)
-            {
-                atribuicao(&best_ever, best_run, parameters);
-            }
-
-            // Libertar memoria
-            // Populacao
-            for (i = 0; i < parameters.popsize; i++)
-                free(pop[i].sol);
-            free(pop);
-
-            // Pais
-            for (i = 0; i < parameters.popsize; i++)
-                free(parents[i].sol);
-            free(parents);
+            free(best_run.sol);
+            free(best_ever.sol);
+            break;
         }
 
-        // Escreve resultados globais
-        printf("\n\nMBF: %f\n", mbf / k);
-        printf("\nMelhor solucao encontrada");
-        escreve_sol(best_ever.sol, m, g);
-        printf("Custo final: %2d\n", best_ever.fitness);
-
-        free(best_run.sol);
-        free(best_ever.sol);
-        break;
+        for (i = 0; i < (m - 1); i++)
+            free(dist[i]);
+        free(dist);
     }
-
-    for (i = 0; i < (m - 1); i++)
-        free(dist[i]);
-    free(dist);
     return 0;
-
 }
