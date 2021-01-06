@@ -7,23 +7,27 @@
 #include "funcao.h"
 #include "utils.h"
 
-
 #define DEFAULT_RUNS 50
-
 
 enum TipoAlgoritmo
 {
+    //Local
 	algTrepaColinas,
-    algTrepaColinasMelhorado,
+    algTrepaColinas2viz,
     algTrepaColinasProb,
-    algEvolucionario
+    algRecristalizacaoSimulada,
+    //Evolucionario
+    algEvolucionarioGenetico,
+    //Hibrido
+    algHibridoTrepaSimples,
+    algHibridoTrepa2viz,
+    algHibridoTrepaProbabilistico
 };
-
 
 int main(int argc, char* argv[])
 {
 	char    nome_fich[100];
-	int     m, g, num_iter, k, runs, custo, custo_best = 0;
+	int     m, g, num_iter, k, runs, custo, best_custo = 0;
 	int  * sol, * best, **dist, i;
 	float   mbf = 0.0;
     char nome_alg[100];
@@ -66,8 +70,8 @@ int main(int argc, char* argv[])
 
         init_rand();
 
-        algoritmo = algTrepaColinasProb;
-        num_iter = 100;
+        algoritmo = algRecristalizacaoSimulada;
+        num_iter = 5000;
 
         /* Evolutivo */
         parameters.numTabuDescidas = 5;
@@ -88,9 +92,10 @@ int main(int argc, char* argv[])
 
         switch (algoritmo)
         {
-        case algTrepaColinasMelhorado:
         case algTrepaColinas:
+        case algTrepaColinas2viz:
         case algTrepaColinasProb:
+        case algRecristalizacaoSimulada:
             /*case algTrepaColinasProb:*/
             sol = calloc(m, sizeof(int));
             best = calloc(m, sizeof(int));
@@ -113,14 +118,19 @@ int main(int argc, char* argv[])
                     strcpy(nome_alg, "Trepa Colinas");
                     custo = trepa_colinas(sol, dist, m, g, num_iter);
                     break;
-                case algTrepaColinasMelhorado:
+                case algTrepaColinas2viz:
                     // Trepa colinas melhorado + probabilistico
-                    strcpy(nome_alg, "Trepa Colinas");
+                    strcpy(nome_alg, "Trepa Colinas 2 vizinhos");
                     custo = trepa_colinasv2(sol, dist, m, g, num_iter);
                     break;
                 case  algTrepaColinasProb:
-                    strcpy(nome_alg, "Trepa Colinas");
+                    strcpy(nome_alg, "Trepa Colinas Probabilistico");
                     custo = tc_prob(sol, dist, m, g, num_iter);
+                    break;
+                case algRecristalizacaoSimulada:
+                    // Trepa colinas Recristalização Simulada
+                    strcpy(nome_alg, "Recristalizacao simulada");
+                    custo = tc_simulated_annealing(sol, dist, m, g, num_iter);
                     break;
                 default:
                     exit(0);
@@ -131,9 +141,9 @@ int main(int argc, char* argv[])
                 printf("Custo final: %2d\n", custo);
 
                 mbf += custo;
-                if (k == 0 || custo_best < custo)
+                if (k == 0 || best_custo < custo)
                 {
-                    custo_best = custo;
+                    best_custo = custo;
                     copia(best, sol, m);
                 }
             }
@@ -141,13 +151,18 @@ int main(int argc, char* argv[])
             printf("\n\nMBF: %f\n", mbf / k);
             printf("\nMelhor solucao encontrada");
             escreve_sol(best, m, g);
-            printf("Custo final: %2d\n", custo_best);
+            printf("Custo final: %2d\n", best_custo);
             // Libertar memoria
             free(sol);
             free(best);
             break;
 
-        case algEvolucionario:
+        //Evolucionario
+        case algEvolucionarioGenetico:
+        //Hibridos
+        case algHibridoTrepaSimples:
+        case algHibridoTrepa2viz:
+        case algHibridoTrepaProbabilistico:
             strcpy(nome_alg, "Evolucionario");
 
             best_run.sol = calloc(m, sizeof(int));
@@ -155,7 +170,6 @@ int main(int argc, char* argv[])
 
             for (k = 0; k < runs; k++)
             {
-
                 pop = init_pop(parameters, dist);
 
                 // AVALIAR a qualidade da populacao
@@ -170,6 +184,7 @@ int main(int argc, char* argv[])
                 // Reservar espaco para os pais
                 parents = init_parents(parameters);
                 gen_actual = 1;
+
 
                 // Main evolutionary loop
                 while (gen_actual <= parameters.numGenerations)
@@ -189,6 +204,26 @@ int main(int argc, char* argv[])
                     gen_actual++;
                 }
 
+                // HIBRIDO: tentar melhorar solução com pesquisa local
+                if (algoritmo == algHibridoTrepaSimples)
+                {
+                    strcpy(nome_alg, "Genetico por torneio + trepa colinas");
+                    // Trepa colinas simples
+                    best_run.fitness = trepa_colinas(best_run.sol, dist, m, g, 1000/*Melhores resultados*/);
+                }
+                if (algoritmo == algHibridoTrepa2viz)
+                {
+                    strcpy(nome_alg, "Genetico por torneio + trepa colinas 2 vizinhos");
+                    // Trepa colinas Melhorado
+                    best_run.fitness = trepa_colinasv2(best_run.sol, dist, m, g, 1000/*Melhores resultados*/);
+                }
+                if (algoritmo == algHibridoTrepaProbabilistico)
+                {
+                    strcpy(nome_alg, "Genetico por torneio + trepa colinas Probabilistico");
+                    // Trepa colinas Probabilistico
+                    best_run.fitness = tc_prob(best_run.sol, dist, m, g, 1000/*Melhores resultados*/);
+                }
+
                 // Escreve resultados da repeticao que terminou
                 printf("\nRepeticao %d:", k);
                 escreve_sol(best_run.sol, m, g);
@@ -200,13 +235,12 @@ int main(int argc, char* argv[])
                     atribuicao(&best_ever, best_run, parameters);
                 }
 
-                // Libertar memoria
-                // Populacao
+                // Libertação de memoria da população
                 for (i = 0; i < parameters.popsize; i++)
                     free(pop[i].sol);
                 free(pop);
 
-                // Pais
+                // Libertação de memoria dos pais
                 for (i = 0; i < parameters.popsize; i++)
                     free(parents[i].sol);
                 free(parents);

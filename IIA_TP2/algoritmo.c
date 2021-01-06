@@ -7,6 +7,8 @@
 #include "utils.h"
 
 #define PROB 0.001
+#define TMAX 99
+#define TMIN 0.0001
 
 
 // Gera um vizinho
@@ -160,6 +162,60 @@ int tc_prob(int sol[], int** mat, int m, int g, int num_iter){
     free(nova_sol);
     return custo;
 
+}
+
+int tc_simulated_annealing(int sol[], int** mat, int m, int g, int num_iter)
+{
+    int* nova_sol, * best_sol, custo, custo_best, custo_viz, i;
+    double eprob, temperatura;
+    double r;
+    nova_sol = malloc(sizeof(int) * m);
+    best_sol = malloc(sizeof(int) * m);
+    // Avalia solucao inicial
+    custo = calcula_fit(sol, mat, m, g);
+
+    copia(best_sol, sol, m);
+    custo_best = custo;
+    // Inicializa temperatura
+    temperatura = TMAX;
+    for (i = 0; i < num_iter; i++) {
+        // Gera vizinho
+        gera_vizinho(sol, nova_sol, m);
+        // Avalia vizinho
+        custo_viz = calcula_fit(nova_sol, mat, m, g);
+        // Calcular probabilidade: maximizacao
+        eprob = exp((custo - custo_viz) / temperatura);
+
+        // Aceita vizinho se o custo diminuir (problema de maximizacao)
+        if (custo_viz >= custo) //= planicie
+        {
+            copia(sol, nova_sol, m);
+            custo = custo_viz;
+        }
+        else
+        {
+            r = rand_01();
+            if (r < eprob)
+            {
+                copia(sol, nova_sol, m);
+                custo = custo_viz;
+            }
+        }
+        if (custo_best < custo)
+        {
+            copia(best_sol, sol, m);
+            custo_best = custo;
+        }
+        // Arrefecimento
+        temperatura -= (TMAX - TMIN) / num_iter;
+    }
+
+    copia(sol, best_sol, m);
+    custo = custo_best;
+
+    free(nova_sol);
+    free(best_sol);
+    return custo;
 }
 
 /* EVOLUTIVO */
