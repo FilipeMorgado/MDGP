@@ -225,12 +225,12 @@ void get_best(pchrom pop, struct info d, pchrom best)
     for (i = 0; i < d.popsize; i++)
     {
         if (best->fitness < pop[i].fitness)
-            atribuicao(best, pop[i], d);
+            atribui(best, pop[i], d);
     }
 }
 
 // Igualar uma solucao de uma populacao
-void atribuicao(pchrom a, chrom b, struct info d)
+void atribui(pchrom a, chrom b, struct info d)
 {
     copia(a->sol, b.sol, d.m);
     a->fitness = b.fitness;

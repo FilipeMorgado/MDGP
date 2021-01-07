@@ -24,5 +24,5 @@ pchrom init_parents(struct info d);
 void evaluate(pchrom pop, struct info d, int** dist);
 void get_best(pchrom pop, struct info d, pchrom best);
 
-void atribuicao(pchrom a, chrom b, struct info d);
+void atribui(pchrom a, chrom b, struct info d);
 int flip();
