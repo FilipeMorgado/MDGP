@@ -207,11 +207,11 @@ pchrom init_parents(struct info d)
 
 // Avaliar cada solucao da populacao.
 // Argumento: Populacao, Estrutura com parametros, Matriz de Distancias
-void evaluate(pchrom pop, struct info d, int** dist)
+void evaluate(pchrom pop, struct info d, int** dist, int *invalidos)
 {
     int i;
     for (i = 0; i < d.popsize; i++)
-        pop[i].fitness = calcula_fit(pop[i].sol, dist, d.m, d.g);
+        pop[i].fitness = calcula_fit(pop[i].sol, dist, d.m, d.g, invalidos);
         // penalizado
         //pop[i].fitness = calcula_fit(pop[i].sol, dist, d.m, d.g);
 }

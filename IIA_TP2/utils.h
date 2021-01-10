@@ -21,7 +21,7 @@ float rand_01();
 
 pchrom init_pop(struct info d, int** dist);
 pchrom init_parents(struct info d);
-void evaluate(pchrom pop, struct info d, int** dist);
+void evaluate(pchrom pop, struct info d, int** dist, int* invalidos);
 void get_best(pchrom pop, struct info d, pchrom best);
 
 void atribui(pchrom a, chrom b, struct info d);

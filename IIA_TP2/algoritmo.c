@@ -7,8 +7,8 @@
 #include "utils.h"
 
 #define PROB 0.001
-#define TMAX 10
-#define TMIN 5
+#define TMAX 100
+#define TMIN 0.01
 
 // Gera um vizinho
 // Parametros: solucao actual, vizinho, numero de vertices

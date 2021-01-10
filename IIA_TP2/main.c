@@ -7,7 +7,7 @@
 #include "funcao.h"
 #include "utils.h"
 
-#define DEFAULT_RUNS 50
+#define DEFAULT_RUNS 10
 
 enum TipoDeAlgoritmo
 {
@@ -70,18 +70,17 @@ int main(int argc, char* argv[])
 
         init_rand();
         //Algoritmo a ser usado no teste
-        algoritmo = algorRecristalizacaoSimulada;
+        algoritmo = algorEvolucionario;
         //Numero de iterações a serem feitas
-        num_iteracoes = 1000;
+        num_iteracoes = 10;
 
         /* Evolutivo */
         //Parametros
-        parameters.numTabuDescidas = 5;
-        parameters.numGenerations = 2100;
+        parameters.numGenerations = 10;
         parameters.popsize = 100;
-        parameters.pm_swap = 0.025;
-        parameters.pr = 0.25;
-        parameters.t_size = 3;
+        parameters.pm_swap = 0.01;
+        parameters.pr = 0.7;
+        parameters.t_size = 5;
 
         //Leitura de Ficheiro e obtemcao de distancia
         distancia = init_dados(nome_fich, &m, &g);
@@ -90,6 +89,9 @@ int main(int argc, char* argv[])
 
         printf("Elementos: %d\n", m);
         printf("Sub-conjuntos: %d\n", g);
+
+
+        int invalidos = 0;
 
         switch (algoritmo)
         {
@@ -157,7 +159,7 @@ int main(int argc, char* argv[])
             free(sol);
             free(best);
             break;
-
+            
         //Evolucionario
         case algorEvolucionario:
         //Hibridos
@@ -168,12 +170,13 @@ int main(int argc, char* argv[])
 
             best_run.sol = malloc(sizeof(int) * m);
             best_ever.sol = malloc(sizeof(int) * m);
+        
 
             for (j = 0; j < runs; j++)
             {
                 pop = init_pop(parameters, distancia);
                 // Avalia a qualidade da populacao
-                evaluate(pop, parameters, distancia);
+                evaluate(pop, parameters, distancia, &invalidos);
                 // Encontra-se a melhor solução dentro de toda a população
                 atribui(&best_run, pop[0], parameters);
                 // Inicializar a melhor solucao encontrada
@@ -189,7 +192,7 @@ int main(int argc, char* argv[])
                     // Aplicar operadores geneticos aos pais (os descendentes ficam armazenados no vector pop)
                     genetic_operators(parents, parameters, pop, distancia);
                     // Reavaliar a qualidade da populacao
-                    evaluate(pop, parameters, distancia);
+                    evaluate(pop, parameters, distancia, &invalidos);
                     // Actualizar a melhor solucao encontrada
                     get_best(pop, parameters, &best_run);
                     gen_actual++;
@@ -219,6 +222,10 @@ int main(int argc, char* argv[])
                 escreve_sol(best_run.sol, m, g);
                 printf("Custo final da repeticao: %2d\n", best_run.fitness);
 
+
+                printf("\nINVALIDOS 1: %d", (100*invalidos)/parameters.numGenerations);
+                printf("\tQUANTIDADE DE INVALIDOS: %d\n", invalidos);
+
                 mbf += best_run.fitness;
                 if (j == 0 || best_ever.fitness < best_run.fitness)
                 {
@@ -232,6 +239,7 @@ int main(int argc, char* argv[])
                 for (i = 0; i < parameters.popsize; i++)
                     free(parents[i].sol);
                 free(parents);
+                 invalidos = 0;
             }
 
             // Escreve resultados globais
@@ -240,6 +248,9 @@ int main(int argc, char* argv[])
             escreve_sol(best_ever.sol, m, g);
             printf("Melhor custo final: %2d\n", best_ever.fitness);
 
+
+            printf("\nTOTAL DE REPETICOES: %d\n", parameters.numGenerations);
+            
             free(best_run.sol);
             free(best_ever.sol);
             break;
