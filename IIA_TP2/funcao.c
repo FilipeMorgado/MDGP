@@ -13,7 +13,28 @@
 int calcula_fit(int a[], int** mat, int m, int g,int *invalidos)
 {
     int* sol = 0, total = 0, i, ind = 0, subc = 0;
-    int cont = 0;
+    // Coloca a solucao num vector
+    sol = malloc(sizeof(int) * m);
+    for (subc = 0; subc < g; subc++) 
+        for (i = 0; i < m; i++) 
+            if (a[i] == subc) {
+                sol[ind] = i;
+                ind++;
+            }
+        
+
+    // qualidade = diversidade(0) + diversidade(1) + etc
+    for (i = 0; i < g; i++)
+        total += calcula_div(sol, mat, m, i * (m / g), m / g);
+
+    free(sol);
+    return total;
+}
+
+
+int calcula_fit_penalizado(int a[], int** mat, int m, int g, int* invalidos)
+{
+    int* sol = 0, total = 0, i, flagDeMerda = 0, ind = 0, subc = 0, cont = 0, ro = 0;
     int n = m / g;
     // Coloca a solucao num vector
     sol = malloc(sizeof(int) * m);
@@ -26,41 +47,22 @@ int calcula_fit(int a[], int** mat, int m, int g,int *invalidos)
             }
         }
         if (cont != n) {
-            printf("\nSOLUCAO INVALIDA: \n");
-            escreve_sol(a, m, g);
-
-           /* for (subc = 0; subc < g; subc++) {
-                for (i = 0, cont = 0; i < m; i++) {
-                    if (cont > n) {
-                        sol[ind - n] = sol[ind];
-                    }
-                }
-            }
-
+            /*printf("\nSOLUCAO INVALIDA: \n");
             escreve_sol(a, m, g);*/
-
-
-            ++*invalidos;
-            return 0;
+            flagDeMerda = 1;
+            ++* invalidos;
         }
     }
-
-    printf("\nSOLUCAO VALIDA: \n");
-    escreve_sol(a, m, g);
-
-  /*  for (int i = 0; i < m; i++)
-        printf("SOL: %d", a[i]);*/
-
-    /*for (subc = 0; subc < g; subc++) {
-        for (i = 0, cont = 0; i < m; i++) {
-            if (sol[i] == subc) {
-                cont++;
-            }
-        }
-        if (cont != n) {
-            return 0;
-        }
-    }*/
+    if(flagDeMerda == 1){
+        for (i = 0; i < g; i++)
+            total += calcula_div(sol, mat, m, i * (m / g), m / g);
+        /*printf("\nSOLUCAO INVALIDA: \n");
+        escreve_sol(a, m, g);*/
+        ro = ceil(n / g);
+        free(sol);
+        //printf("\nTOTAL: %d", total * m * 10);
+        return total - ro * m;
+    }
 
     // qualidade = diversidade(0) + diversidade(1) + etc
     for (i = 0; i < g; i++)
@@ -69,6 +71,7 @@ int calcula_fit(int a[], int** mat, int m, int g,int *invalidos)
     free(sol);
     return total;
 }
+
 
 //Calculo da diversidade 
 //A qualidade das soluções é calculada somando as 

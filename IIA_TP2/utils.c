@@ -136,7 +136,10 @@ int obter_distancia(int** dist, int m, int a, int b)
         i = a;
         j = b;
     }
-    return dist[i][j];
+    if (dist[i][j] == NULL)
+        return 0;
+    else
+        return dist[i][j];
 }
 
 
@@ -171,7 +174,7 @@ pchrom init_pop(struct info d, int** dist)
 
         gera_sol_inicial(p[i].sol, d.m, d.g);
 
-        p[i].fitness = calcula_fit(p[i].sol, dist, d.m, d.g);
+        p[i].fitness = calcula_fit(p[i].sol, dist, d.m, d.g,0);
     }
 
     return p;
@@ -211,9 +214,9 @@ void evaluate(pchrom pop, struct info d, int** dist, int *invalidos)
 {
     int i;
     for (i = 0; i < d.popsize; i++)
-        pop[i].fitness = calcula_fit(pop[i].sol, dist, d.m, d.g, invalidos);
+        //pop[i].fitness = calcula_fit(pop[i].sol, dist, d.m, d.g, invalidos);
         // penalizado
-        //pop[i].fitness = calcula_fit(pop[i].sol, dist, d.m, d.g);
+        pop[i].fitness = calcula_fit_penalizado(pop[i].sol, dist, d.m, d.g,invalidos);
 }
 
 // Actualiza a melhor solucao encontrada

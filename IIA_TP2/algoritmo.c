@@ -32,7 +32,7 @@ void gera_vizinho(int a[], int b[], int n)
 // Trepa colinas first-choice
 // Parametros: solucao, matriz de adjacencias, numero de vertices e numero de iteracoes
 // Devolve o custo da melhor solucao encontrada
-int trepa_colinas(int sol[], int** mat, int m, int g, int num_iter)
+int trepa_colinas(int sol[], int** mat, int m, int g, int num_iter, int *invalidos)
 {
     int* nova_sol, custo, custo_viz, i;
     
@@ -44,7 +44,7 @@ int trepa_colinas(int sol[], int** mat, int m, int g, int num_iter)
     }
 
     // Avalia solucao inicial
-    custo = calcula_fit(sol, mat, m, g);
+    custo = calcula_fit(sol, mat, m, g, invalidos);
 
     for (i = 0; i < num_iter; i++)
     {
@@ -52,7 +52,7 @@ int trepa_colinas(int sol[], int** mat, int m, int g, int num_iter)
         gera_vizinho(sol, nova_sol, m);
 
         // Avalia vizinho
-        custo_viz = calcula_fit(nova_sol, mat, m, g);
+        custo_viz = calcula_fit(nova_sol, mat, m, g, invalidos);
 
         // Aceita vizinho se o custo aumentar (problema de maximizacao)
         if (custo_viz > custo)
@@ -71,7 +71,7 @@ int trepa_colinas(int sol[], int** mat, int m, int g, int num_iter)
 // Trepa colinas 2 vizinhanças
 // Parametros: solucao, matriz de adjacencias, numero de vertices e numero de iteracoes
 // Devolve o custo da melhor solucao encontrada
-int trepa_colinas2viz(int sol[], int** mat, int m, int g, int num_iter)
+int trepa_colinas2viz(int sol[], int** mat, int m, int g, int num_iter, int* invalidos)
 {
     int *nova_sol,*nova_sol2, custo, custo_viz, custo_viz2, i;
 
@@ -85,7 +85,7 @@ int trepa_colinas2viz(int sol[], int** mat, int m, int g, int num_iter)
     }
 
     // Avalia solucao inicial
-    custo = calcula_fit(sol, mat, m, g);
+    custo = calcula_fit(sol, mat, m, g, invalidos);
 
     for (i = 0; i < num_iter; i++)
     {
@@ -94,8 +94,8 @@ int trepa_colinas2viz(int sol[], int** mat, int m, int g, int num_iter)
         gera_vizinho(sol, nova_sol2, m);
 
         // Avalia vizinho
-        custo_viz = calcula_fit(nova_sol, mat, m, g);
-        custo_viz2 = calcula_fit(nova_sol2, mat, m, g);
+        custo_viz = calcula_fit(nova_sol, mat, m, g, invalidos);
+        custo_viz2 = calcula_fit(nova_sol2, mat, m, g, invalidos);
 
         // Aceita vizinho se o custo aumentar (problema de maximizacao)
         // Aceita também caso seja igual, para evitar maximos locais (planicies)
@@ -120,7 +120,7 @@ int trepa_colinas2viz(int sol[], int** mat, int m, int g, int num_iter)
 // Trepa colinas Probabilistico
 // Parametros: solucao, matriz de adjacencias, numero de vertices e numero de iteracoes
 // Devolve o custo da melhor solucao encontrada
-int trepaColinas_probabilistico(int sol[], int** mat, int m, int g, int num_iter){
+int trepaColinas_probabilistico(int sol[], int** mat, int m, int g, int num_iter, int* invalidos){
     int* nova_sol, custo, custo_viz, i;
 
 
@@ -132,7 +132,7 @@ int trepaColinas_probabilistico(int sol[], int** mat, int m, int g, int num_iter
     }
 
     // Avalia solucao inicial
-    custo = calcula_fit(sol, mat, m, g);
+    custo = calcula_fit(sol, mat, m, g, invalidos);
 
     for (i = 0; i < num_iter; i++)
     {
@@ -140,7 +140,7 @@ int trepaColinas_probabilistico(int sol[], int** mat, int m, int g, int num_iter
         gera_vizinho(sol, nova_sol, m);
 
         // Avalia vizinho
-        custo_viz = calcula_fit(nova_sol, mat, m, g);
+        custo_viz = calcula_fit(nova_sol, mat, m, g, invalidos);
 
         // Aceita vizinho se o custo aumentar (problema de maximizacao)
         // Aceita também caso seja igual, para evitar maximos locais (planicies)
@@ -166,7 +166,7 @@ int trepaColinas_probabilistico(int sol[], int** mat, int m, int g, int num_iter
 // Recristalizacao Simulada
 // Parametros: solucao, matriz de adjacencias, numero de vertices e numero de iteracoes
 // Devolve o custo da melhor solucao encontrada
-int recristalizacao_simulada(int sol[], int** mat, int m, int g, int num_iter)
+int recristalizacao_simulada(int sol[], int** mat, int m, int g, int num_iter, int* invalidos)
 {
     int* nova_sol, * best_sol, custo, custo_best, custo_viz, i;
     double eprob, temperatura, r;
@@ -175,7 +175,7 @@ int recristalizacao_simulada(int sol[], int** mat, int m, int g, int num_iter)
     best_sol = malloc(sizeof(int) * m);
 
     // Avalia solucao inicial
-    custo = calcula_fit(sol, mat, m, g);
+    custo = calcula_fit(sol, mat, m, g, invalidos);
 
     copia(best_sol, sol, m);
     custo_best = custo;
@@ -185,7 +185,7 @@ int recristalizacao_simulada(int sol[], int** mat, int m, int g, int num_iter)
         // Gera vizinho
         gera_vizinho(sol, nova_sol, m);
         // Avalia vizinho
-        custo_viz = calcula_fit(nova_sol, mat, m, g);
+        custo_viz = calcula_fit(nova_sol, mat, m, g, invalidos);
         // Calcular probabilidade: maximizacao
         eprob = exp((custo - custo_viz) / temperatura);
         
@@ -227,6 +227,74 @@ int recristalizacao_simulada(int sol[], int** mat, int m, int g, int num_iter)
 
     return custo;
 }
+
+
+
+// Tabu
+// Parametros: solucao, matriz de adjacencias, numero de vertices, numero de iteracoes e numero de descidas tabu
+// Devolve o custo da melhor solucao encontrada
+int pesquisa_tabu(int sol[], int** mat, int m, int g, int num_iter, int num_Tabu_desc, int flagChangeIter, int* invalidos)
+{
+    int* nova_sol, custo, custo_viz, custoGlobal = 0, indexTab = 0, i = 0, inc = 1;
+
+    nova_sol = malloc(sizeof(int) * m);
+    if (nova_sol == NULL)
+    {
+        printf("Erro na alocacao de memoria");
+        exit(1);
+    }
+
+    // Avalia solucao inicial
+    custo = calcula_fit(sol, mat, m, g, invalidos);
+
+    for (i = 0; i < num_iter;)
+    {
+        // Gera vizinho
+        gera_vizinho(sol, nova_sol, m);
+
+        // Avalia vizinho
+        custo_viz = calcula_fit(nova_sol, mat, m, g, invalidos);
+
+        // Aceita vizinho se o custo aumentar (problema de maximizacao)
+        if (custo_viz > custo)
+        {
+            indexTab = 0;
+            custo = custo_viz;
+            if (custo > custoGlobal)
+            {
+                custoGlobal = custo_viz;
+                copia(sol, nova_sol, m);
+            }
+            inc = 1;
+        }
+        else
+        {
+            if (num_Tabu_desc > indexTab)
+            {
+                if (flagChangeIter == 0)
+                    inc = 1;
+                else
+                    inc = 0;
+
+                custo = custo_viz;
+                indexTab++;
+            }
+            else
+                inc = 1;
+        }
+        if (custoGlobal > custo)
+            custo = custoGlobal;
+
+        if (inc == 1)
+            i++;
+    }
+
+    free(nova_sol);
+
+    return custo;
+}
+
+
 /* EVOLUTIVO */
 
 // Seleccao por torneio de tamanho t_size

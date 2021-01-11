@@ -1,6 +1,7 @@
 int trepa_colinas(int sol[], int** mat, int m, int g, int num_iter);
 int trepa_colinas2viz(int sol[], int** mat, int m, int g, int num_iter);
 int trepaColinas_probabilistico(int sol[], int** mat, int m, int g, int num_iter);
+int pesquisa_tabu(int sol[], int** mat, int m, int g, int num_iter, int num_Tabu_desc, int flagChangeIter, int *invalidos);
 
 
 
