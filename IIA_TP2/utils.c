@@ -136,10 +136,7 @@ int obter_distancia(int** dist, int m, int a, int b)
         i = a;
         j = b;
     }
-    if (dist[i][j] == NULL)
-        return 0;
-    else
-        return dist[i][j];
+    return dist[i][j];
 }
 
 
@@ -156,6 +153,7 @@ pchrom init_pop(struct info d, int** dist)
 
     // Linhas
     pchrom p = malloc(sizeof(chrom) * d.popsize);
+
     if (!p)
     {
         printf("Erro na alocacao de memoria\n");
@@ -165,16 +163,17 @@ pchrom init_pop(struct info d, int** dist)
     for (i = 0; i < d.popsize; i++)
     {
         // Colunas de cada linha
-        p[i].sol = (int*)calloc(d.m, sizeof(int));
+        p[i].sol = (int*)malloc(sizeof(int) * d.m);
         if (!p[i].sol)
         {
             printf("Erro na alocacao de memoria para linha %d\n", i);
             exit(1);
         }
+        p[i].valido = 1;
 
         gera_sol_inicial(p[i].sol, d.m, d.g);
 
-        p[i].fitness = calcula_fit(p[i].sol, dist, d.m, d.g,0);
+        p[i].fitness = calcula_fit(p[i].sol, dist, d,&p[i].valido);
     }
 
     return p;
@@ -210,13 +209,14 @@ pchrom init_parents(struct info d)
 
 // Avaliar cada solucao da populacao.
 // Argumento: Populacao, Estrutura com parametros, Matriz de Distancias
-void evaluate(pchrom pop, struct info d, int** dist, int *invalidos)
+void evaluate(pchrom pop, struct info d, int** dist)
 {
     int i;
-    for (i = 0; i < d.popsize; i++)
-        //pop[i].fitness = calcula_fit(pop[i].sol, dist, d.m, d.g, invalidos);
+    for (i = 0; i < d.popsize; i++) {
+        pop[i].fitness = calcula_fit(pop[i].sol, dist, d, &pop[i].valido);
         // penalizado
-        pop[i].fitness = calcula_fit_penalizado(pop[i].sol, dist, d.m, d.g,invalidos);
+        //pop[i].fitness = calcula_fit_penalizado(pop[i].sol, dist, d, &pop[i].valido);
+    }
 }
 
 // Actualiza a melhor solucao encontrada

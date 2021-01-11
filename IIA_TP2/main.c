@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 
         init_rand();
         //Algoritmo a ser usado no teste
-        algoritmo = algorTabu;
+        algoritmo = algorEvolucionario;
         //Numero de iterações a serem feitas
         num_iteracoes = 100;
         if (argc == 4)
@@ -124,26 +124,26 @@ int main(int argc, char* argv[])
                 case algorTrepaColinas:
                     // Trepa colinas simples
                     strcpy(nome_algor, "Trepa Colinas");
-                    custo = trepa_colinas(sol, distancia, m, g, num_iteracoes, invalidos);
+                    custo = trepa_colinas(sol, distancia, parameters, num_iteracoes, invalidos);
                     break;
                 case algorTrepaColinas2viz:
                     // Trepa colinas 2 vizinhos
                     strcpy(nome_algor, "Trepa Colinas 2 Vizinhos");
-                    custo = trepa_colinas2viz(sol, distancia, m, g, num_iteracoes, invalidos);
+                    custo = trepa_colinas2viz(sol, distancia, parameters, num_iteracoes, invalidos);
                     break;
                 case  algorTrepaColinasProb: 
                     //Trepa Colinas Probabilistico
                     strcpy(nome_algor, "Trepa Colinas Probabilistico");
-                    custo = trepaColinas_probabilistico(sol, distancia, m, g, num_iteracoes, invalidos);
+                    custo = trepaColinas_probabilistico(sol, distancia, parameters, num_iteracoes, invalidos);
                     break;
                 case algorRecristalizacaoSimulada:
                     // Trepa colinas Recristalização Simulada
                     strcpy(nome_algor, "Recristalizacao simulada");
-                    custo = recristalizacao_simulada(sol, distancia, m, g, num_iteracoes, invalidos);
+                    custo = recristalizacao_simulada(sol, distancia, parameters, num_iteracoes, invalidos);
                     break;
                 case algorTabu:
                     strcpy(nome_algor, "Tabu");
-                    custo = pesquisa_tabu(sol, distancia, m, g, num_iteracoes, parameters.numTabuDescidas, 1, invalidos);
+                    custo = pesquisa_tabu(sol, distancia, parameters, num_iteracoes, 1, invalidos);
                     break;
                 default:
                     exit(0);
@@ -212,20 +212,25 @@ int main(int argc, char* argv[])
                 {
                     strcpy(nome_algor, "Genetico por torneio + trepa colinas");
                     // Trepa colinas simples
-                    best_run.fitness = trepa_colinas(best_run.sol, distancia, m, g, 1000); /*Utilizando 1000 iteracoes*/
+                    best_run.fitness = trepa_colinas(best_run.sol, distancia, parameters, 1000); /*Utilizando 1000 iteracoes*/
                 }
                 if (algoritmo == algorHibridoTrepa2viz)
                 {
                     strcpy(nome_algor, "Genetico por torneio + trepa colinas 2 vizinhos");
                     // Trepa colinas Melhorado
-                    best_run.fitness = trepa_colinas2viz(best_run.sol, distancia, m, g, 1000); /*Utilizando 1000 iteracoes*/
+                    best_run.fitness = trepa_colinas2viz(best_run.sol, distancia, parameters, 1000); /*Utilizando 1000 iteracoes*/
                 }
                 if (algoritmo == algorHibridoTrepaProbabilistico)
                 {
                     strcpy(nome_algor, "Genetico por torneio + trepa colinas Probabilistico");
                     // Trepa colinas Probabilistico
-                    best_run.fitness = trepaColinas_probabilistico(best_run.sol, distancia, m, g, 1000); /*Utilizando 1000 iteracoes*/
+                    best_run.fitness = trepaColinas_probabilistico(best_run.sol, distancia, parameters, 1000); /*Utilizando 1000 iteracoes*/
                 }
+
+
+                for (invalidos = 0, i = 0; i < parameters.popsize; i++)
+                    if (pop[i].valido == 0)
+                        invalidos++;
 
                 // Escreve resultados da repeticao que terminou
                 printf("\nRepeticao numero %d:", j);
@@ -233,7 +238,7 @@ int main(int argc, char* argv[])
                 printf("Custo final da repeticao: %2d\n", best_run.fitness);
 
 
-                printf("\nINVALIDOS percentagem: %d", (100*invalidos)/runs);
+                printf("\nINVALIDOS percentagem: %f", 100 * (float)invalidos / parameters.popsize);
                 printf("\tQUANTIDADE DE INVALIDOS: %d\n", invalidos);
 
                 mbf += best_run.fitness;

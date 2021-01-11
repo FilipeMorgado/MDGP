@@ -1,7 +1,7 @@
-int trepa_colinas(int sol[], int** mat, int m, int g, int num_iter);
-int trepa_colinas2viz(int sol[], int** mat, int m, int g, int num_iter);
-int trepaColinas_probabilistico(int sol[], int** mat, int m, int g, int num_iter);
-int pesquisa_tabu(int sol[], int** mat, int m, int g, int num_iter, int num_Tabu_desc, int flagChangeIter, int *invalidos);
+int trepa_colinas(int sol[], int** mat, struct info d, int num_iter);
+int trepa_colinas2viz(int sol[], int** mat, struct info d, int num_iter);
+int trepaColinas_probabilistico(int sol[], int** mat, struct info d, int num_iter);
+int pesquisa_tabu(int sol[], int** mat, struct info d, int num_iter,int flagChangeIter);
 
 
 
@@ -23,6 +23,7 @@ typedef struct individual chrom, * pchrom;
 struct individual {
     int* sol; //solucao
     int fitness; // distancia (qualidade)
+    int valido;
 };
 
 //void binary_tournament(pchrom pop, struct info d, pchrom parents);
