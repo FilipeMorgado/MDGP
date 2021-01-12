@@ -7,7 +7,7 @@
 #include "funcao.h"
 #include "utils.h"
 
-#define DEFAULT_RUNS 30
+#define DEFAULT_RUNS 20
 
 enum TipoDeAlgoritmo
 {
@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
         //Algoritmo a ser usado no teste
         algoritmo = algorEvolucionario;
         //Numero de iterações a serem feitas
-        num_iteracoes = 100;
+        num_iteracoes = 1000;
         if (argc == 4)
             parameters.numTabuDescidas = atoi(argv[3]);
         else
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
 
         /* Evolutivo */
         //Parametros
-        parameters.numGenerations = 500;
+        parameters.numGenerations = 2500;
         parameters.popsize = 100;
         parameters.pm_swap = 0.01;
         parameters.pr = 0.7;

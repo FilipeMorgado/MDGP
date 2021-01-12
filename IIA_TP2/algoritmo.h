@@ -30,7 +30,10 @@ struct individual {
 void tournament_geral(pchrom pop, struct info d, pchrom parents);
 void genetic_operators(pchrom parents, struct info d, pchrom offspring, int** dist);
 void recombination(pchrom parents, struct info d, pchrom offspring, int** dist);
+void recombination_crossover(pchrom parents, struct info d, pchrom offspring, int** dist);
+void recombination_uniforme(pchrom parents, struct info d, pchrom offspring, int** dist);
 void mutation(struct info d, pchrom offspring);
+void mutation_binary(struct info d, pchrom offspring);
 void mutation_swap(struct info d, int a[]);
 void rec_ordenar(int p1[], int p2[], int d1[], int d2[], struct info d);
 //void mutation_ins(struct info d, int a[]);
