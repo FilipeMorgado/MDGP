@@ -332,15 +332,122 @@ void tournament_geral(pchrom pop, struct info d, pchrom parents)
 void genetic_operators(pchrom parents, struct info d, pchrom offspring, int** dist)
 {
     // Recombinação com 2 pontos de corte
-    recombination(parents, d, offspring, dist);
+    //recombination(parents, d, offspring, dist);
     //recombinacao 1 ponto de corte
     recombination_crossover(parents, d, offspring, dist);
     // recombinacao uniforme
-    recombination_uniforme(parents, d, offspring, dist);
+    //recombination_uniforme(parents, d, offspring, dist);
     // Mutação por troca
-    mutation(d, offspring);
+    //mutation(d, offspring);
     // mutacao binaria
     mutation_binary(d, offspring);
+}
+
+// 
+void rec_ordenar_crossover(int p1[], int p2[], int d1[], int d2[], struct info d)
+{
+    int i, aceites, * tab1, * tab2, * conj;
+    double prob = 0.5, r;
+
+    tab1 = (int*)malloc(d.m * sizeof(int));
+    if (!tab1)
+    {
+        printf("Erro na alocacao de memoria");
+        exit(1);
+    }
+
+    tab2 = (int*)malloc(d.m * sizeof(int));
+    if (!tab2)
+    {
+        printf("Erro na alocacao de memoria");
+        exit(1);
+    }
+
+    conj = (int*)malloc(d.g * sizeof(int));
+    if (!conj)
+    {
+        printf("Erro na alocacao de memoria");
+        exit(1);
+    }
+
+    // Primeiro descendente
+    i = 0;
+    aceites = 0;
+    while (1)
+    {
+        // Verificar
+        if (aceites >= d.m)
+            break;
+
+        // Ultimo
+        if (i >= d.m)
+        {
+            i = 0;
+            continue;
+        }
+        r = rand_01();
+        if (r < prob)
+        {
+            // Verifica se ja ultrapassa do limite
+            if (conj[p1[i]] >= (d.m / d.g) || tab1[i] == 1)
+            {
+                if (conj[p2[i]] >= (d.m / d.g) || tab2[i] == 1)
+                {
+                    // Ultimo: Proteccao
+                    if (i == d.m - 1)
+                        i = 0;
+                    else
+                        i++;
+                    continue;
+                }
+                else
+                {
+                    d1[aceites] = p2[i];
+                    tab2[i] = 1;
+                }
+            }
+            else
+            {
+                d1[aceites] = p1[i];
+                tab1[i] = 1;
+            }
+        }
+        else
+        {
+            // Verifica se ja ultrapassa do limite
+            if (conj[p2[i]] >= (d.m / d.g) || tab2[i] == 1)
+            {
+                if (conj[p1[i]] >= (d.m / d.g) || tab1[i] == 1)
+                {
+                    // Ultimo: Proteccao
+                    if (i == d.m - 1)
+                        i = 0;
+                    else
+                        i++;
+                    continue;
+                }
+                else
+                {
+                    d1[aceites] = p1[i];
+                    tab1[i] = 1;
+                }
+            }
+            else
+            {
+                d1[aceites] = p2[i];
+                tab2[i] = 1;
+            }
+        }
+
+        conj[d1[aceites]]++;
+        aceites++;
+        i++;
+    }
+
+    // Liberta memória
+    free(conj);
+    free(tab1);
+    free(tab2);
 }
 
 // Chama a funcao cx_order que implementa a recombinacao por ordem (com probabilidade pr)
@@ -452,115 +559,6 @@ void mutation_swap(struct info d, int a[])
     a[x] = a[y];
     a[y] = z;
 }
-// 
-void rec_ordenar_crossover(int p1[], int p2[], int d1[], int d2[], struct info d)
-{
-    int i, aceites, * tab1, * tab2, * conj;
-    double prob = 0.5, r;
-
-    tab1 = (int*)malloc(d.m * sizeof(int));
-    if (!tab1)
-    {
-        printf("Erro na alocacao de memoria");
-        exit(1);
-    }
-
-    tab2 = (int*)malloc(d.m * sizeof(int));
-    if (!tab2)
-    {
-        printf("Erro na alocacao de memoria");
-        exit(1);
-    }
-
-    conj = (int*)malloc(d.g * sizeof(int));
-    if (!conj)
-    {
-        printf("Erro na alocacao de memoria");
-        exit(1);
-    }
-
-    // Primeiro descendente
-    i = 0;
-    aceites = 0;
-    while (1)
-    {
-        // Verificar
-        if (aceites >= d.m)
-            break;
-
-        // Ultimo
-        if (i >= d.m)
-        {
-            i = 0;
-            continue;
-        }
-        r = rand_01();
-        if (r < prob)
-        {
-            // Verifica se ja ultrapassa do limite
-            if (conj[p1[i]] >= (d.m / d.g) || tab1[i] == 1)
-            {
-                if (conj[p2[i]] >= (d.m / d.g) || tab2[i] == 1)
-                {
-                    // Ultimo: Proteccao
-                    if (i == d.m - 1)
-                        i = 0;
-                    else
-                        i++;
-                    continue;
-                }
-                else
-                {
-                    d1[aceites] = p2[i];
-                    tab2[i] = 1;
-                }
-            }
-            else
-            {
-                d1[aceites] = p1[i];
-                tab1[i] = 1;
-            }
-        }
-        else
-        {
-            // Verifica se ja ultrapassa do limite
-            if (conj[p2[i]] >= (d.m / d.g) || tab2[i] == 1)
-            {
-                if (conj[p1[i]] >= (d.m / d.g) || tab1[i] == 1)
-                {
-                    // Ultimo: Proteccao
-                    if (i == d.m - 1)
-                        i = 0;
-                    else
-                        i++;
-                    continue;
-                }
-                else
-                {
-                    d1[aceites] = p1[i];
-                    tab1[i] = 1;
-                }
-            }
-            else
-            {
-                d1[aceites] = p2[i];
-                tab2[i] = 1;
-            }
-        }
-
-        conj[d1[aceites]]++;
-        aceites++;
-        i++;
-    }
-    
-    // Liberta memória
-    free(conj);
-    free(tab1);
-    free(tab2);
-}
-
-
-
 
 // Recombinacao por ordem
 // Argumentos: pai1, pai2, descendente1, descendente2, estrutura com parametros

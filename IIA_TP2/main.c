@@ -7,7 +7,7 @@
 #include "funcao.h"
 #include "utils.h"
 
-#define DEFAULT_RUNS 20
+#define DEFAULT_RUNS 10
 
 enum TipoDeAlgoritmo
 {
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
         parameters.numGenerations = 2500;
         parameters.popsize = 100;
         parameters.pm_swap = 0.01;
-        parameters.pr = 0.7;
+        parameters.pr = 0.3;
         parameters.t_size = 5;
 
         //Leitura de Ficheiro e obtemcao de distancia
