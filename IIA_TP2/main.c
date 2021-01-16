@@ -7,7 +7,7 @@
 #include "funcao.h"
 #include "utils.h"
 
-#define DEFAULT_RUNS 10
+#define DEFAULT_RUNS 30
 
 enum TipoDeAlgoritmo
 {
@@ -22,8 +22,9 @@ enum TipoDeAlgoritmo
     //Hibrido
     algorHibridoTrepaSimples,
     algorHibridoTrepa2viz,
-    algorHibridoTrepaProbabilistico
+    algorHibridoTabu
 };
+
 
 int main(int argc, char* argv[])
 {
@@ -71,21 +72,22 @@ int main(int argc, char* argv[])
 
         init_rand();
         //Algoritmo a ser usado no teste
-        algoritmo = algorEvolucionario;
+        algoritmo = algorHibridoTabu;
         //Numero de iterações a serem feitas
-        num_iteracoes = 1000;
+        num_iteracoes = 5000;
         if (argc == 4)
             parameters.numTabuDescidas = atoi(argv[3]);
         else
-            parameters.numTabuDescidas = 5;
+            parameters.numTabuDescidas = 15;
 
         /* Evolutivo */
         //Parametros
         parameters.numGenerations = 2500;
         parameters.popsize = 100;
         parameters.pm_swap = 0.01;
-        parameters.pr = 0.3;
+        parameters.pr = 0.7;
         parameters.t_size = 5;
+
 
         //Leitura de Ficheiro e obtemcao de distancia
         distancia = init_dados(nome_fich, &m, &g);
@@ -175,7 +177,7 @@ int main(int argc, char* argv[])
         //Hibridos
         case algorHibridoTrepaSimples:
         case algorHibridoTrepa2viz:
-        case algorHibridoTrepaProbabilistico:
+        case algorHibridoTabu:
             strcpy(nome_algor, "Evolucionario");
 
             best_run.sol = malloc(sizeof(int) * m);
@@ -220,11 +222,11 @@ int main(int argc, char* argv[])
                     // Trepa colinas Melhorado
                     best_run.fitness = trepa_colinas2viz(best_run.sol, distancia, parameters, 1000); /*Utilizando 1000 iteracoes*/
                 }
-                if (algoritmo == algorHibridoTrepaProbabilistico)
+                if (algoritmo == algorHibridoTabu)
                 {
                     strcpy(nome_algor, "Genetico por torneio + trepa colinas Probabilistico");
                     // Trepa colinas Probabilistico
-                    best_run.fitness = trepaColinas_probabilistico(best_run.sol, distancia, parameters, 1000); /*Utilizando 1000 iteracoes*/
+                    best_run.fitness = pesquisa_tabu(best_run.sol, distancia, parameters, num_iteracoes, 1, invalidos); /*Utilizando 1000 iteracoes*/
                 }
 
 

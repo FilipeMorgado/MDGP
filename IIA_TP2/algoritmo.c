@@ -334,7 +334,7 @@ void genetic_operators(pchrom parents, struct info d, pchrom offspring, int** di
     // Recombinação com 2 pontos de corte
     //recombination(parents, d, offspring, dist);
     //recombinacao 1 ponto de corte
-    recombination_crossover(parents, d, offspring, dist);
+   recombination_crossover(parents, d, offspring, dist);
     // recombinacao uniforme
     //recombination_uniforme(parents, d, offspring, dist);
     // Mutação por troca
@@ -386,7 +386,7 @@ void rec_ordenar_crossover(int p1[], int p2[], int d1[], int d2[], struct info d
             continue;
         }
         r = rand_01();
-        if (r < prob)
+        if (r < prob) //Recombina pai
         {
             // Verifica se ja ultrapassa do limite
             if (conj[p1[i]] >= (d.m / d.g) || tab1[i] == 1)
@@ -412,7 +412,7 @@ void rec_ordenar_crossover(int p1[], int p2[], int d1[], int d2[], struct info d
                 tab1[i] = 1;
             }
         }
-        else
+        else //Recombina mae
         {
             // Verifica se ja ultrapassa do limite
             if (conj[p2[i]] >= (d.m / d.g) || tab2[i] == 1)

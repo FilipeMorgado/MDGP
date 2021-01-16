@@ -6,14 +6,14 @@ int pesquisa_tabu(int sol[], int** mat, struct info d, int num_iter,int flagChan
 
 
 struct info {
-    int m;       // numero de elementos
-    int g;       // numero de subconjuntos
-    int popsize; //tam populacao inicial
-    float pm_swap; //prob de mutacao
-    float pr;       //prob de cruzamento
-    int t_size;        //tam do torneio
-    int numGenerations;    //numero de gerações
-    int numTabuDescidas;
+    int m;              // numero de elementos
+    int g;              // numero de subconjuntos
+    int popsize;        //tam populacao inicial
+    float pm_swap;      //prob de mutacao
+    float pr;           //prob de cruzamento
+    int t_size;         //tam do torneio
+    int numGenerations; //numero de gerações
+    int numTabuDescidas; //numero de tabelas
 };
 
 /* Revolucionario */

@@ -26,10 +26,10 @@ int calcula_fit(int a[], int** mat, struct info d,int *invalidos)
             }
         }
         if (cont != n) {
+            free(sol);
             return 0;
         }
     }
-        
 
     // qualidade = diversidade(0) + diversidade(1) + etc
     for (i = 0; i < d.g; i++)
