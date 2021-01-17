@@ -1,6 +1,13 @@
+/*
+*   TP2 -> Introdução a Inteligência Artíficial - 2020-2021
+*   Trabalho realizado por:
+*       Filipe Morgado.:  2019137625
+*       André Domingues.: 2019127839
+*/
 int trepa_colinas(int sol[], int** mat, struct info d, int num_iter);
 int trepa_colinas2viz(int sol[], int** mat, struct info d, int num_iter);
 int trepaColinas_probabilistico(int sol[], int** mat, struct info d, int num_iter);
+int recristalizacao_simulada(int sol[], int** mat, struct info d, int num_iter);
 int pesquisa_tabu(int sol[], int** mat, struct info d, int num_iter,int flagChangeIter);
 
 

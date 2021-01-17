@@ -1,3 +1,10 @@
+/*
+*   TP2 -> Introdução a Inteligência Artíficial - 2020-2021
+*   Trabalho realizado por:
+*       Filipe Morgado.:  2019137625
+*       André Domingues.: 2019127839
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,7 +36,7 @@ enum TipoDeAlgoritmo
 int main(int argc, char* argv[])
 {
 	char    nome_fich[100];
-	int     m, g, num_iteracoes, j, runs, custo = 0, best_custo = 0;
+	int     m, g, num_iteracoes, j, runs, custo = 0, best_custo = 0, invalidos = 0;;
 	int  * sol, * best, **distancia, i;
 	float   mbf = 0.0;
     char nome_algor[100];
@@ -63,7 +70,10 @@ int main(int argc, char* argv[])
             {
                 runs = DEFAULT_RUNS;
                 printf("Nome do Ficheiro: ");
-                gets(nome_fich);
+                if (scanf("%s", &nome_fich) != 1)
+                    return 0;;
+                //fgets(nome_fich, sizeof(nome_fich), stdin);
+
             }
 
         // Se o número de execuções do processo for menor ou igual a 0, termina o programa
@@ -72,9 +82,9 @@ int main(int argc, char* argv[])
 
         init_rand();
         //Algoritmo a ser usado no teste
-        algoritmo = algorHibridoTabu;
+        algoritmo = algorEvolucionario;
         //Numero de iterações a serem feitas
-        num_iteracoes = 5000;
+        num_iteracoes = 100;
         if (argc == 4)
             parameters.numTabuDescidas = atoi(argv[3]);
         else
@@ -84,8 +94,8 @@ int main(int argc, char* argv[])
         //Parametros
         parameters.numGenerations = 2500;
         parameters.popsize = 100;
-        parameters.pm_swap = 0.01;
-        parameters.pr = 0.7;
+        parameters.pm_swap = 0.01f;
+        parameters.pr = 0.3f;
         parameters.t_size = 5;
 
 
@@ -96,9 +106,6 @@ int main(int argc, char* argv[])
 
         printf("Elementos: %d\n", m);
         printf("Sub-conjuntos: %d\n", g);
-
-
-        int invalidos = 0;
 
         switch (algoritmo)
         {
@@ -126,26 +133,27 @@ int main(int argc, char* argv[])
                 case algorTrepaColinas:
                     // Trepa colinas simples
                     strcpy(nome_algor, "Trepa Colinas");
-                    custo = trepa_colinas(sol, distancia, parameters, num_iteracoes, invalidos);
+                    custo = trepa_colinas(sol, distancia, parameters, num_iteracoes);
                     break;
                 case algorTrepaColinas2viz:
                     // Trepa colinas 2 vizinhos
                     strcpy(nome_algor, "Trepa Colinas 2 Vizinhos");
-                    custo = trepa_colinas2viz(sol, distancia, parameters, num_iteracoes, invalidos);
+                    custo = trepa_colinas2viz(sol, distancia, parameters, num_iteracoes);
                     break;
                 case  algorTrepaColinasProb: 
-                    //Trepa Colinas Probabilistico
+                    // Trepa Colinas Probabilistico
                     strcpy(nome_algor, "Trepa Colinas Probabilistico");
-                    custo = trepaColinas_probabilistico(sol, distancia, parameters, num_iteracoes, invalidos);
+                    custo = trepaColinas_probabilistico(sol, distancia, parameters, num_iteracoes);
                     break;
                 case algorRecristalizacaoSimulada:
                     // Trepa colinas Recristalização Simulada
                     strcpy(nome_algor, "Recristalizacao simulada");
-                    custo = recristalizacao_simulada(sol, distancia, parameters, num_iteracoes, invalidos);
+                    custo = recristalizacao_simulada(sol, distancia, parameters, num_iteracoes);
                     break;
                 case algorTabu:
+                    // Tabu
                     strcpy(nome_algor, "Tabu");
-                    custo = pesquisa_tabu(sol, distancia, parameters, num_iteracoes, 1, invalidos);
+                    custo = pesquisa_tabu(sol, distancia, parameters, num_iteracoes, 1);
                     break;
                 default:
                     exit(0);
@@ -188,7 +196,7 @@ int main(int argc, char* argv[])
             {
                 pop = init_pop(parameters, distancia);
                 // Avalia a qualidade da populacao
-                evaluate(pop, parameters, distancia, &invalidos);
+                evaluate(pop, parameters, distancia);
                 // Encontra-se a melhor solução dentro de toda a população
                 atribui(&best_run, pop[0], parameters);
                 // Inicializar a melhor solucao encontrada
@@ -204,7 +212,7 @@ int main(int argc, char* argv[])
                     // Aplicar operadores geneticos aos pais (os descendentes ficam armazenados no vector pop)
                     genetic_operators(parents, parameters, pop, distancia);
                     // Reavaliar a qualidade da populacao
-                    evaluate(pop, parameters, distancia, &invalidos);
+                    evaluate(pop, parameters, distancia);
                     // Actualizar a melhor solucao encontrada
                     get_best(pop, parameters, &best_run);
                     gen_actual++;
@@ -224,24 +232,21 @@ int main(int argc, char* argv[])
                 }
                 if (algoritmo == algorHibridoTabu)
                 {
-                    strcpy(nome_algor, "Genetico por torneio + trepa colinas Probabilistico");
+                    strcpy(nome_algor, "Genetico por torneio + Tabu");
                     // Trepa colinas Probabilistico
-                    best_run.fitness = pesquisa_tabu(best_run.sol, distancia, parameters, num_iteracoes, 1, invalidos); /*Utilizando 1000 iteracoes*/
+                    best_run.fitness = pesquisa_tabu(best_run.sol, distancia, parameters, num_iteracoes, 1); /*Utilizando 1000 iteracoes*/
                 }
-
-
-                for (invalidos = 0, i = 0; i < parameters.popsize; i++)
+              /*  for (invalidos = 0, i = 0; i < parameters.popsize; i++)
                     if (pop[i].valido == 0)
-                        invalidos++;
+                        invalidos++;*/
 
                 // Escreve resultados da repeticao que terminou
                 printf("\nRepeticao numero %d:", j);
                 escreve_sol(best_run.sol, m, g);
                 printf("Custo final da repeticao: %2d\n", best_run.fitness);
 
-
-                printf("\nINVALIDOS percentagem: %f", 100 * (float)invalidos / parameters.popsize);
-                printf("\tQUANTIDADE DE INVALIDOS: %d\n", invalidos);
+                /*printf("\nINVALIDOS percentagem: %f", 100 * (float)invalidos / parameters.popsize);
+                printf("\tQUANTIDADE DE INVALIDOS: %d\n", invalidos);*/
 
                 mbf += best_run.fitness;
                 if (j == 0 || best_ever.fitness < best_run.fitness)
@@ -256,7 +261,7 @@ int main(int argc, char* argv[])
                 for (i = 0; i < parameters.popsize; i++)
                     free(parents[i].sol);
                 free(parents);
-                 invalidos = 0;
+                 //invalidos = 0;
             }
 
             // Escreve resultados globais
@@ -264,10 +269,6 @@ int main(int argc, char* argv[])
             printf("\nMelhor solucao encontrada foi:\n");
             escreve_sol(best_ever.sol, m, g);
             printf("Melhor custo final: %2d\n", best_ever.fitness);
-
-
-            printf("\nTOTAL DE REPETICOES: %d\n", parameters.numGenerations);
-            
             free(best_run.sol);
             free(best_ever.sol);
             break;

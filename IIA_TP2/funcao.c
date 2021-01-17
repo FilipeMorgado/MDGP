@@ -1,3 +1,9 @@
+/*
+*   TP2 -> Introdução a Inteligência Artíficial - 2020-2021
+*   Trabalho realizado por:
+*       Filipe Morgado.:  2019137625
+*       André Domingues.: 2019127839
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,28 +16,30 @@
 // Calcula a qualidade de uma solucao
 // Recebe: solucao, matriz, nr de elementos, nr de sub-conjuntos
 // Devolve a fitness
-int calcula_fit(int a[], int** mat, struct info d,int *invalidos)
+int calcula_fit(int a[], int** mat, struct info d)
 {
-    int* sol = 0, total = 0, i, ind = 0, subc = 0, cont;
+    int* sol = 0, total = 0, i = 0, ind = 0, subc = 0, cont;
     int n = d.m / d.g;
 
     // Coloca a solucao num vector
     sol = malloc(sizeof(int) * d.m);
-    for (subc = 0; subc < d.g; subc++) {
-        for (i = 0, cont = 0; i < d.m; i++) {
-            if (a[i] == subc) {
-                sol[ind] = i;
-                ind++;
-                ++cont;
+    if (sol) {
+        for (subc = 0; subc < d.g; subc++) {
+            for (i = 0, cont = 0; i < d.m; i++) {
+                if (a[i] == subc) {
+                    sol[ind] = i;
+                    ind++;
+                    ++cont;
+                }
             }
-        }
-        if (cont != n) {
-            free(sol);
-            return 0;
+            if (cont != n) {
+                free(sol);
+                return 0;
+            }
         }
     }
 
-    // qualidade = diversidade(0) + diversidade(1) + etc
+    // Calculo da qualidade. qualidade = diversidade(0) + diversidade(1) + etc
     for (i = 0; i < d.g; i++)
         total += calcula_div(sol, mat, d.m, i * (d.m / d.g), d.m / d.g);
 
@@ -39,43 +47,43 @@ int calcula_fit(int a[], int** mat, struct info d,int *invalidos)
     return total;
 }
 
-
-int calcula_fit_penalizado(int a[], int** mat, struct info d, int* invalidos)
+// Calcula a qualidade de uma solucao com penalizacao
+// Recebe: solucao, matriz, nr de elementos, nr de sub-conjuntos
+// Devolve a fitness
+int calcula_fit_penalizado(int a[], int** mat, struct info d)
 {
-    int* sol = 0, total = 0, i, flagDeMerda = 0, ind = 0, subc = 0, cont = 0, ro = 0;
-    int n = d.m / d.g;
+    int* sol = 0, total = 0, i, flag = 0, ind = 0, subc = 0, cont = 0;
+    float ro = 0;
+    int n = (d.m / d.g);
+    ro = (float)ceil(n / d.g);
     // Coloca a solucao num vector
     sol = malloc(sizeof(int) * d.m);
-    for (subc = 0; subc < d.g; subc++) {
-        for (i = 0, cont = 0; i < d.m; i++) {
-            if (a[i] == subc) {
-                sol[ind] = i;
-                ind++;
-                ++cont;
+    if (sol) {
+        for (subc = 0; subc < d.g; subc++) {
+            for (i = 0, cont = 0; i < d.m; i++) {
+                if (a[i] == subc) {
+                    sol[ind] = i;
+                    ind++;
+                    ++cont;
+                }
+            }
+            if (cont != n) {
+                flag = 1;
             }
         }
-        if (cont != n) {
-            /*printf("\nSOLUCAO INVALIDA: \n");
-            escreve_sol(a, m, g);*/
-            flagDeMerda = 1;
-        }
     }
-    if(flagDeMerda == 1){
+
+    if(flag == 1){
         for (i = 0; i < d.g; i++)
             total += calcula_div(sol, mat, d.m, i * (d.m / d.g), d.m / d.g);
-        /*printf("\nSOLUCAO INVALIDA: \n");
-        escreve_sol(a, m, g);*/
-        *invalidos = 0;
-        ro = ceil(n / d.g);
+        //*invalidos = 0;
         free(sol);
-        //printf("\nTOTAL: %d", total * m * 10);
-        return total - ro * d.m * 100;
+        return (int)(total - ro * d.m * 100);
     }
 
-    // qualidade = diversidade(0) + diversidade(1) + etc
     for (i = 0; i < d.g; i++)
         total += calcula_div(sol, mat, d.m, i * (d.m / d.g),d.m / d.g);
-
+    //*invalidos = 1;
     free(sol);
     return total;
 }

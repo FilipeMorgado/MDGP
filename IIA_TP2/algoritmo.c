@@ -1,3 +1,9 @@
+/*
+*   TP2 -> Introdução a Inteligência Artíficial - 2020-2021
+*   Trabalho realizado por:
+*       Filipe Morgado.:  2019137625
+*       André Domingues.: 2019127839
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -34,7 +40,7 @@ void gera_vizinho(int a[], int b[], int n)
 // Devolve o custo da melhor solucao encontrada
 int trepa_colinas(int sol[], int** mat, struct info d, int num_iter)
 {
-    int* nova_sol, custo, custo_viz, i, invalidos = 1;
+    int* nova_sol, custo, custo_viz, i;
     
     nova_sol = malloc(sizeof(int) * d.m);
     if (nova_sol == NULL)
@@ -44,7 +50,7 @@ int trepa_colinas(int sol[], int** mat, struct info d, int num_iter)
     }
 
     // Avalia solucao inicial
-    custo = calcula_fit(sol, mat, d, invalidos);
+    custo = calcula_fit(sol, mat, d);
 
     for (i = 0; i < num_iter; i++)
     {
@@ -52,7 +58,7 @@ int trepa_colinas(int sol[], int** mat, struct info d, int num_iter)
         gera_vizinho(sol, nova_sol, d.m);
 
         // Avalia vizinho
-        custo_viz = calcula_fit(nova_sol, mat, d, invalidos);
+        custo_viz = calcula_fit(nova_sol, mat, d);
 
         // Aceita vizinho se o custo aumentar (problema de maximizacao)
         if (custo_viz > custo)
@@ -73,7 +79,7 @@ int trepa_colinas(int sol[], int** mat, struct info d, int num_iter)
 // Devolve o custo da melhor solucao encontrada
 int trepa_colinas2viz(int sol[], int** mat, struct info d, int num_iter)
 {
-    int *nova_sol,*nova_sol2, custo, custo_viz, custo_viz2, i , invalidos = 1;
+    int *nova_sol,*nova_sol2, custo, custo_viz, custo_viz2, i ;
 
     nova_sol = malloc(sizeof(int) * d.m);
     nova_sol2 = malloc(sizeof(int) * d.m);
@@ -85,7 +91,7 @@ int trepa_colinas2viz(int sol[], int** mat, struct info d, int num_iter)
     }
 
     // Avalia solucao inicial
-    custo = calcula_fit(sol, mat, d, invalidos);
+    custo = calcula_fit(sol, mat, d);
 
     for (i = 0; i < num_iter; i++)
     {
@@ -94,8 +100,8 @@ int trepa_colinas2viz(int sol[], int** mat, struct info d, int num_iter)
         gera_vizinho(sol, nova_sol2, d.m);
 
         // Avalia vizinho
-        custo_viz = calcula_fit(nova_sol, mat,d, invalidos);
-        custo_viz2 = calcula_fit(nova_sol2, mat, d, invalidos);
+        custo_viz = calcula_fit(nova_sol, mat,d);
+        custo_viz2 = calcula_fit(nova_sol2, mat, d);
 
         // Aceita vizinho se o custo aumentar (problema de maximizacao)
         // Aceita também caso seja igual, para evitar maximos locais (planicies)
@@ -121,7 +127,7 @@ int trepa_colinas2viz(int sol[], int** mat, struct info d, int num_iter)
 // Parametros: solucao, matriz de adjacencias, numero de vertices e numero de iteracoes
 // Devolve o custo da melhor solucao encontrada
 int trepaColinas_probabilistico(int sol[], int** mat, struct info d, int num_iter){
-    int* nova_sol, custo, custo_viz, i, invalidos = 1;
+    int* nova_sol, custo, custo_viz, i;
 
 
     nova_sol = malloc(sizeof(int) * d.m);
@@ -132,7 +138,7 @@ int trepaColinas_probabilistico(int sol[], int** mat, struct info d, int num_ite
     }
 
     // Avalia solucao inicial
-    custo = calcula_fit(sol, mat, d, invalidos);
+    custo = calcula_fit(sol, mat, d);
 
     for (i = 0; i < num_iter; i++)
     {
@@ -140,7 +146,7 @@ int trepaColinas_probabilistico(int sol[], int** mat, struct info d, int num_ite
         gera_vizinho(sol, nova_sol, d.m);
 
         // Avalia vizinho
-        custo_viz = calcula_fit(nova_sol, mat, d, invalidos);
+        custo_viz = calcula_fit(nova_sol, mat, d);
 
         // Aceita vizinho se o custo aumentar (problema de maximizacao)
         // Aceita também caso seja igual, para evitar maximos locais (planicies)
@@ -168,14 +174,14 @@ int trepaColinas_probabilistico(int sol[], int** mat, struct info d, int num_ite
 // Devolve o custo da melhor solucao encontrada
 int recristalizacao_simulada(int sol[], int** mat, struct info d, int num_iter)
 {
-    int* nova_sol, * best_sol, custo, custo_best, custo_viz, i, invalidos = 1;
+    int* nova_sol, * best_sol, custo, custo_best, custo_viz, i;
     double eprob, temperatura, r;
 
     nova_sol = malloc(sizeof(int) * d.m);
     best_sol = malloc(sizeof(int) * d.m);
 
     // Avalia solucao inicial
-    custo = calcula_fit(sol, mat,d, invalidos);
+    custo = calcula_fit(sol, mat,d);
 
     copia(best_sol, sol, d.m);
     custo_best = custo;
@@ -185,7 +191,7 @@ int recristalizacao_simulada(int sol[], int** mat, struct info d, int num_iter)
         // Gera vizinho
         gera_vizinho(sol, nova_sol, d.m);
         // Avalia vizinho
-        custo_viz = calcula_fit(nova_sol, mat, d, invalidos);
+        custo_viz = calcula_fit(nova_sol, mat, d);
         // Calcular probabilidade: maximizacao
         eprob = exp((custo - custo_viz) / temperatura);
         
@@ -235,7 +241,7 @@ int recristalizacao_simulada(int sol[], int** mat, struct info d, int num_iter)
 // Devolve o custo da melhor solucao encontrada
 int pesquisa_tabu(int sol[], int** mat, struct info d, int num_iter, int flagChangeIter)
 {
-    int* nova_sol, custo, custo_viz, custoGlobal = 0, indexTab = 0, i = 0, inc = 1, invalidos = 1;
+    int* nova_sol, custo, custo_viz, custoGlobal = 0, indexTab = 0, i = 0, inc = 1;
 
     nova_sol = malloc(sizeof(int) * d.m);
     if (nova_sol == NULL)
@@ -245,7 +251,7 @@ int pesquisa_tabu(int sol[], int** mat, struct info d, int num_iter, int flagCha
     }
 
     // Avalia solucao inicial
-    custo = calcula_fit(sol, mat, d, invalidos);
+    custo = calcula_fit(sol, mat, d);
 
     for (i = 0; i < num_iter;)
     {
@@ -253,7 +259,7 @@ int pesquisa_tabu(int sol[], int** mat, struct info d, int num_iter, int flagCha
         gera_vizinho(sol, nova_sol, d.m);
 
         // Avalia vizinho
-        custo_viz = calcula_fit(nova_sol, mat, d, invalidos);
+        custo_viz = calcula_fit(nova_sol, mat, d);
 
         // Aceita vizinho se o custo aumentar (problema de maximizacao)
         if (custo_viz > custo)
@@ -288,9 +294,7 @@ int pesquisa_tabu(int sol[], int** mat, struct info d, int num_iter, int flagCha
         if (inc == 1)
             i++;
     }
-
     free(nova_sol);
-
     return custo;
 }
 
@@ -438,12 +442,10 @@ void rec_ordenar_crossover(int p1[], int p2[], int d1[], int d2[], struct info d
                 tab2[i] = 1;
             }
         }
-
         conj[d1[aceites]]++;
         aceites++;
         i++;
     }
-
     // Liberta memória
     free(conj);
     free(tab1);

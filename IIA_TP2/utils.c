@@ -1,3 +1,9 @@
+/*
+*   TP2 -> Introdução a Inteligência Artíficial - 2020-2021
+*   Trabalho realizado por:
+*       Filipe Morgado.:  2019137625
+*       André Domingues.: 2019127839
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -26,10 +32,10 @@ int** init_dados(char* nome, int* m, int* g)
     }
 
     // Numero de elementos
-    fscanf(f, " %d", m);
+    fscanf_s(f, " %d", m);
 
     // Numero de sub-conjuntos
-    fscanf(f, " %d", g);
+    fscanf_s(f, " %d", g);
 
     fgets(lixoFicheiro,100,f);
     // Linhas
@@ -44,7 +50,6 @@ int** init_dados(char* nome, int* m, int* g)
     {
         // Colunas de cada linha
         dist[i] = (int*)calloc(*m, sizeof(int));
-       //dist[i] = (int**)malloc(sizeof(*m));
         if (!dist[i])
         {
             printf("Erro na alocacao de memoria para linha %d\n", i);
@@ -58,11 +63,11 @@ int** init_dados(char* nome, int* m, int* g)
     for (idx = 0; idx < lines; idx++)
     {
         //Lado A
-        fscanf(f, " %d", &i);
+        fscanf_s(f, " %d", &i);
         //Lado B
-        fscanf(f, " %d", &j);
+        fscanf_s(f, " %d", &j);
         //Valor Distancia
-        fscanf(f, " %d", &dist[i][j]);
+        fscanf_s(f, " %d", &dist[i][j]);
     }
 
     fclose(f);
@@ -140,10 +145,7 @@ int obter_distancia(int** dist, int m, int a, int b)
 }
 
 
-
 /* EVOLUTIVO */
-
-
 // Criacao da populacao inicial. O vector e alocado dinamicamente
 // Argumento: Estrutura com parametros, Matriz de Distancias
 // Devolve o vector com a populacao
@@ -173,7 +175,8 @@ pchrom init_pop(struct info d, int** dist)
 
         gera_sol_inicial(p[i].sol, d.m, d.g);
 
-        p[i].fitness = calcula_fit(p[i].sol, dist, d,&p[i].valido);
+        //p[i].fitness = calcula_fit(p[i].sol, dist, d,&p[i].valido);
+        p[i].fitness = calcula_fit(p[i].sol, dist, d);
     }
 
     return p;
@@ -213,7 +216,8 @@ void evaluate(pchrom pop, struct info d, int** dist)
 {
     int i;
     for (i = 0; i < d.popsize; i++) {
-        pop[i].fitness = calcula_fit(pop[i].sol, dist, d, &pop[i].valido);
+        //pop[i].fitness = calcula_fit(pop[i].sol, dist, d, &pop[i].valido);
+        pop[i].fitness = calcula_fit(pop[i].sol, dist, d);
         // penalizado
         //pop[i].fitness = calcula_fit_penalizado(pop[i].sol, dist, d, &pop[i].valido);
     }

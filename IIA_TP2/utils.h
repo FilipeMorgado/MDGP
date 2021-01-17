@@ -1,5 +1,10 @@
+/*
+*   TP2 -> Introdução a Inteligência Artíficial - 2020-2021
+*   Trabalho realizado por:
+*       Filipe Morgado.:  2019137625
+*       André Domingues.: 2019127839
+*/
 #pragma once
-
 int** init_dados(char* nome, int* m, int* g);
 void gera_sol_inicial(int* sol, int m, int g);
 void escreve_sol(int* sol, int m, int g);
@@ -21,7 +26,7 @@ float rand_01();
 
 pchrom init_pop(struct info d, int** dist);
 pchrom init_parents(struct info d);
-void evaluate(pchrom pop, struct info d, int** dist, int* invalidos);
+void evaluate(pchrom pop, struct info d, int** dist);
 void get_best(pchrom pop, struct info d, pchrom best);
 
 void atribui(pchrom a, chrom b, struct info d);
