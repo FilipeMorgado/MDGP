@@ -8,3 +8,8 @@ In this project were used the algorithms:
   - Tabu Search Algorithm.
   - Evolutionary Algorithm using: binary mutation, One-Point crossover, Two-point crossover, Uniform corssover.
   - Hybrid algorithm using a combination of several different algorithms mentioned above. 
+
+## Files
+To get a better understanding of everything that is implemented and the project, the guide for this has been left with the files.\
+The entire project is in Portuguese.\
+[Guide](Enunciado_IIA_20_21.pdf)
