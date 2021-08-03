@@ -1,4 +1,4 @@
-# MDGP
+# MDGP - Maximally Diverse Grouping Problem
 Project made for Introduction to Artificial Intelligence class at ISEC. Project made in C with the objective of testing various types of AI algorithms.
 
 In this project were used the algorithms: 
