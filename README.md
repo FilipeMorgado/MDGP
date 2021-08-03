@@ -1,5 +1,5 @@
 # MDGP
-Project made for Introduction to Artificial Intelligence class at ISEC. Project made in C using various types of AI algorithms.
+Project made for Introduction to Artificial Intelligence class at ISEC. Project made in C with the objective of testing various types of AI algorithms.
 
 In this project were used the algorithms: 
   - Hill Climbing using 1 and 2 neighbors accepting and not accepting same values.
